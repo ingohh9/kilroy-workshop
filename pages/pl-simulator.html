@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILROY P&L Impact Simulator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f0f0f0;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: #1a1a1a;
+    color: white;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header .left { display: flex; align-items: center; gap: 16px; }
+  .header .kilroy { font-weight: 900; font-size: 22px; letter-spacing: -1px; color: #FF4713; text-transform: uppercase; }
+  .header h1 { font-size: 17px; font-weight: 700; color: white; }
+  .header .subtitle { font-size: 12px; color: #888; margin-top: 2px; }
+  .header .badge { background: #FF4713; color: white; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .main { display: grid; grid-template-columns: 340px 1fr; gap: 20px; padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+  /* LEFT PANEL - LEVERS */
+  .levers-panel { display: flex; flex-direction: column; gap: 14px; }
+
+  .lever-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px 20px;
+    border: 2px solid transparent;
+    cursor: default;
+  }
+  .lever-card.active { border-color: #FF4713; }
+
+  .lever-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #FF4713;
+    margin-bottom: 6px;
+  }
+  .lever-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    line-height: 1.3;
+  }
+  .lever-desc {
+    font-size: 12px;
+    color: #888;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .slider-row input[type=range] {
+    flex: 1;
+    accent-color: #FF4713;
+    height: 4px;
+    cursor: pointer;
+  }
+  .slider-value {
+    min-width: 52px;
+    text-align: right;
+    font-size: 14px;
+    font-weight: 800;
+    color: #FF4713;
+  }
+  .slider-row label {
+    font-size: 12px;
+    color: #aaa;
+    min-width: 32px;
+  }
+
+  .impact-pill {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .impact-pill.positive { background: #e8fff0; color: #1a8a40; }
+  .impact-pill.negative { background: #fff0f0; color: #cc0000; }
+  .impact-pill.neutral { background: #f0f0f0; color: #666; }
+
+  /* RESET */
+  .reset-btn {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s;
+  }
+  .reset-btn:hover { background: #333; }
+
+  /* RIGHT PANEL */
+  .right-panel { display: flex; flex-direction: column; gap: 16px; }
+
+  /* IMPACT SUMMARY */
+  .impact-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .impact-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px 16px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+  }
+  .impact-card.highlight { border-color: #FF4713; }
+  .impact-card .card-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #aaa;
+    margin-bottom: 6px;
+  }
+  .impact-card .card-value {
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+    transition: color 0.3s;
+  }
+  .impact-card .card-delta {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .green { color: #1a8a40; }
+  .red { color: #cc0000; }
+  .orange { color: #FF4713; }
+
+  /* P&L TABLE */
+  .pl-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pl-header-bar {
+    background: #1a1a1a;
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pl-header-bar span { font-size: 13px; font-weight: 700; }
+  .pl-header-bar .col-labels {
+    display: flex;
+    gap: 0;
+  }
+  .pl-header-bar .col-label {
+    width: 110px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 600;
+    color: #aaa;
+  }
+  .pl-header-bar .col-label.highlighted { color: #FF4713; }
+
+  .pl-body { padding: 8px 0; }
+
+  .pl-row {
+    display: flex;
+    align-items: center;
+    padding: 5px 24px;
+    transition: background 0.2s;
+  }
+  .pl-row:hover { background: #fafafa; }
+  .pl-row.section-header {
+    background: #f5f5f5;
+    margin: 6px 0 2px 0;
+    padding: 6px 24px;
+  }
+  .pl-row.total-row {
+    background: #f5f5f5;
+    border-top: 2px solid #e0e0e0;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .pl-row.ebit-row {
+    background: #1a1a1a;
+    color: white;
+    font-weight: 700;
+    margin-top: 6px;
+    border-radius: 0;
+  }
+  .pl-row.gp-row { background: #fff8f5; font-weight: 600; }
+
+  .row-label {
+    flex: 1;
+    font-size: 13px;
+    color: #333;
+  }
+  .pl-row.section-header .row-label { font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .pl-row.ebit-row .row-label { color: white; font-size: 14px; }
+  .pl-row.total-row .row-label { font-size: 13px; color: #1a1a1a; }
+
+  .row-val {
+    width: 110px;
+    text-align: right;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: #555;
+  }
+  .row-val.budget { color: #1a1a1a; font-weight: 500; }
+  .row-val.scenario { color: #FF4713; font-weight: 700; transition: all 0.3s; }
+  .row-val.delta { font-size: 12px; font-weight: 600; transition: all 0.3s; }
+  .row-val.delta.pos { color: #1a8a40; }
+  .row-val.delta.neg { color: #cc0000; }
+  .row-val.delta.zero { color: #aaa; }
+  .pl-row.ebit-row .row-val { color: #ccc; }
+  .pl-row.ebit-row .row-val.scenario { color: #FF4713; font-size: 16px; }
+  .pl-row.ebit-row .row-val.delta.pos { color: #7fffb0; }
+  .pl-row.ebit-row .row-val.delta.neg { color: #ffaaaa; }
+
+  /* Scenario explanation box */
+  .scenario-explain {
+    background: #fff8f5;
+    border: 1px solid #ffd4c2;
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .scenario-explain h3 {
+    font-size: 13px;
+    font-weight: 800;
+    color: #FF4713;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .scenario-explain p {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.6;
+  }
+  .scenario-explain strong { font-weight: 700; color: #1a1a1a; }
+
+  /* Tabs */
+  .scenario-tabs {
+    display: flex;
+    gap: 8px;
+  }
+  .scenario-tab {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #666;
+  }
+  .scenario-tab:hover { border-color: #FF4713; color: #FF4713; }
+  .scenario-tab.active { background: #FF4713; border-color: #FF4713; color: white; }
+
+  .panel-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .divider { height: 1px; background: #f0f0f0; margin: 2px 24px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="left">
+    <div class="kilroy">KiLROY</div>
+    <div>
+      <div class="subtitle">Leadership Academy — Business Success</div>
+      <h1>P&L Impact Simulator</h1>
+    </div>
+  </div>
+  <div class="badge">Module 2 Exercise</div>
+</div>
+
+<div class="main">
+
+  <!-- LEFT: LEVERS -->
+  <div class="levers-panel">
+    <div class="panel-title">Adjust the levers</div>
+
+    <!-- Salary lever -->
+    <div class="lever-card" id="card-salary">
+      <div class="lever-label">Cost lever</div>
+      <div class="lever-title">Salary increase</div>
+      <div class="lever-desc">Total salary cost in budget is ~82M ISK. Even a small % increase has a significant EBIT impact.</div>
+      <div class="slider-row">
+        <label>0%</label>
+        <input type="range" id="slider-salary" min="0" max="15" step="0.5" value="0" oninput="update()">
+        <label>15%</label>
+      </div>
+      <div class="slider-value" id="val-salary">+0%</div>
+      <div class="impact-pill neutral" id="pill-salary">No change</div>
+    </div>
+
+    <!-- Margin lever -->
+    <div class="lever-card" id="card-margin">
+      <div class="lever-label">Revenue lever</div>
+      <div class="lever-title">Gross margin improvement</div>
+      <div class="lever-desc">GP1 margin is currently ~25.2%. Improving product margin or mix directly boosts the top of the P&L.</div>
+      <div class="slider-row">
+        <label>0%</label>
+        <input type="range" id="slider-margin" min="0" max="8" step="0.5" value="0" oninput="update()">
+        <label>8pp</label>
+      </div>
+      <div class="slider-value" id="val-margin">+0pp</div>
+      <div class="impact-pill neutral" id="pill-margin">No change</div>
+    </div>
+
+    <!-- Win rate lever -->
+    <div class="lever-card" id="card-winrate">
+      <div class="lever-label">Sales lever</div>
+      <div class="lever-title">Win rate improvement</div>
+      <div class="lever-desc">Current average win rate ~25%. Assume ~4,000 annual requests. Each percentage point ≈ 40 extra confirmed journeys.</div>
+      <div class="slider-row">
+        <label>0pp</label>
+        <input type="range" id="slider-winrate" min="0" max="15" step="0.5" value="0" oninput="update()">
+        <label>+15pp</label>
+      </div>
+      <div class="slider-value" id="val-winrate">+0pp</div>
+      <div class="impact-pill neutral" id="pill-winrate">No change</div>
+    </div>
+
+    <!-- Marketing lever -->
+    <div class="lever-card" id="card-marketing">
+      <div class="lever-label">Cost lever</div>
+      <div class="lever-title">Marketing spend change</div>
+      <div class="lever-desc">Budget marketing is ~12M ISK (~2% of turnover). Adjust to see cost impact — but note: less spend may affect leads.</div>
+      <div class="slider-row">
+        <label>-50%</label>
+        <input type="range" id="slider-marketing" min="-50" max="100" step="5" value="0" oninput="update()">
+        <label>+100%</label>
+      </div>
+      <div class="slider-value" id="val-marketing">0%</div>
+      <div class="impact-pill neutral" id="pill-marketing">No change</div>
+    </div>
+
+    <!-- Headcount lever -->
+    <div class="lever-card" id="card-headcount">
+      <div class="lever-label">Strategic lever</div>
+      <div class="lever-title">Recruit one more FTE?</div>
+      <div class="lever-desc">Budget: 8.8 FTE. Average staff cost per FTE ~9,500 ISK (thousands). Is there financial capacity to add headcount?</div>
+      <div class="slider-row">
+        <label>-2</label>
+        <input type="range" id="slider-headcount" min="-2" max="3" step="1" value="0" oninput="update()">
+        <label>+3</label>
+      </div>
+      <div class="slider-value" id="val-headcount">0 FTE</div>
+      <div class="impact-pill neutral" id="pill-headcount">No change</div>
+    </div>
+
+    <button class="reset-btn" onclick="resetAll()">↺ Reset all levers</button>
+
+  </div>
+
+  <!-- RIGHT: P&L + SUMMARY -->
+  <div class="right-panel">
+
+    <!-- Impact summary cards -->
+    <div class="impact-summary">
+      <div class="impact-card" id="card-turnover">
+        <div class="card-label">Turnover</div>
+        <div class="card-value" id="sum-turnover">601</div>
+        <div class="card-delta" id="delta-turnover" style="color:#aaa">Budget baseline</div>
+      </div>
+      <div class="impact-card" id="card-gp1">
+        <div class="card-label">Gross Profit 1</div>
+        <div class="card-value" id="sum-gp1">152</div>
+        <div class="card-delta" id="delta-gp1" style="color:#aaa">Budget baseline</div>
+      </div>
+      <div class="impact-card highlight" id="card-ebit">
+        <div class="card-label">EBIT</div>
+        <div class="card-value orange" id="sum-ebit">19.2</div>
+        <div class="card-delta" id="delta-ebit" style="color:#aaa">Budget baseline</div>
+      </div>
+      <div class="impact-card" id="card-fte">
+        <div class="card-label">FTE count</div>
+        <div class="card-value" id="sum-fte">8.8</div>
+        <div class="card-delta" id="delta-fte" style="color:#aaa">Budget baseline</div>
+      </div>
+    </div>
+
+    <!-- Scenario explain -->
+    <div class="scenario-explain" id="explain-box">
+      <h3>Current scenario</h3>
+      <p id="explain-text">Move any lever to see the P&L impact in real time. Each lever reflects a real decision a manager might face — salary negotiations, recruitment, margin management, or sales performance.</p>
+    </div>
+
+    <!-- P&L Table -->
+    <div class="pl-container">
+      <div class="pl-header-bar">
+        <span>KILROY Iceland — P&L (1,000 ISK)</span>
+        <div class="col-labels">
+          <div class="col-label">2024 Actual</div>
+          <div class="col-label">2025 Est.</div>
+          <div class="col-label highlighted">Budget 2026</div>
+          <div class="col-label highlighted">Scenario</div>
+          <div class="col-label highlighted">Δ Change</div>
+        </div>
+      </div>
+      <div class="pl-body" id="pl-body">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// BASE DATA (in thousands ISK)
+const BASE = {
+  turnover: 601400,
+  gp1: 151635,
+  other: 2231,
+  salesCost: -2748,
+  marketing: -12000,
+  salaries: -65513,
+  salariedAllied: -16559,
+  training: -436,
+  staffCost: -1398,
+  travelCost: -1200,
+  sla: -22053,
+  officeSupplies: -180,
+  itComms: -327,
+  occupancy: -8209,
+  profFees: -1150,
+  sundry: -2785,
+  depreciation: -151,
+  financialItems: 12358,
+  fte: 8.8
+};
+
+// PRIOR YEARS (for reference columns)
+const ACT24 = { turnover:447620, gp1:116280, other:2377, salesCost:-2904, marketing:-8020, salaries:-57430, salariedAllied:-15246, training:-789, staffCost:-377, travelCost:-1740, sla:-23769, officeSupplies:-77, itComms:-1355, occupancy:-6080, profFees:-2697, sundry:-681, depreciation:-1083, financialItems:7423 };
+const EST25 = { turnover:549614, gp1:137138, other:2775, salesCost:-2612, marketing:-8356, salaries:-62310, salariedAllied:-17679, training:-1648, staffCost:-1070, travelCost:-1020, sla:-20663, officeSupplies:-69, itComms:-498, occupancy:-8311, profFees:-1146, sundry:-2422, depreciation:-2375, financialItems:10313 };
+
+function calcEBIT(d) {
+  const gp2 = d.gp1 + d.other;
+  const capCosts = d.salesCost + d.marketing + d.salaries + d.salariedAllied + d.training + d.staffCost + d.travelCost + d.sla + d.officeSupplies + d.itComms + d.occupancy + d.profFees + d.sundry;
+  return gp2 + capCosts + d.depreciation;
+}
+
+function fmt(n) {
+  if (n === null || n === undefined) return '';
+  const abs = Math.abs(Math.round(n));
+  const s = abs.toLocaleString('en');
+  if (n < 0) return `(${s})`;
+  return s;
+}
+
+function fmtDelta(n) {
+  if (Math.abs(n) < 10) return '—';
+  const s = Math.abs(Math.round(n)).toLocaleString('en');
+  return (n > 0 ? '+' : '-') + s;
+}
+
+function fmtK(n) {
+  return (n/1000).toFixed(1);
+}
+
+function update() {
+  const salaryPct = parseFloat(document.getElementById('slider-salary').value) / 100;
+  const marginPp = parseFloat(document.getElementById('slider-margin').value) / 100;
+  const winratePp = parseFloat(document.getElementById('slider-winrate').value) / 100;
+  const marketingPct = parseFloat(document.getElementById('slider-marketing').value) / 100;
+  const headcount = parseFloat(document.getElementById('slider-headcount').value);
+
+  // Update display values
+  document.getElementById('val-salary').textContent = '+' + (salaryPct*100).toFixed(1) + '%';
+  document.getElementById('val-margin').textContent = '+' + (marginPp*100).toFixed(1) + 'pp';
+  document.getElementById('val-winrate').textContent = '+' + (winratePp*100).toFixed(1) + 'pp';
+  document.getElementById('val-marketing').textContent = (marketingPct>=0?'+':'') + (marketingPct*100).toFixed(0) + '%';
+  document.getElementById('val-headcount').textContent = (headcount>=0?'+':'') + headcount + ' FTE';
+
+  // --- COMPUTE SCENARIO ---
+  const s = Object.assign({}, BASE);
+
+  // Salary lever: affects salaries + allied (core staff)
+  const salaryImpact = BASE.salaries * salaryPct;
+  s.salaries = BASE.salaries + salaryImpact;
+
+  // Margin lever: GP1 margin improvement on same turnover
+  s.gp1 = BASE.turnover * (BASE.gp1/BASE.turnover + marginPp);
+  const marginImpact = s.gp1 - BASE.gp1;
+
+  // Win rate: each 1pp ≈ ~40 extra journeys, avg booking value ~100k ISK, avg GP margin 25%
+  // Additional revenue = winratePp * 4000 journeys_equiv * avg_revenue_per_journey
+  // Average revenue per confirmed journey ≈ turnover / (requests*winrate) 
+  // Requests ≈ 4000, winrate=25%, confirmed = 1000, turnover=601400, so avg booking ≈ 601 ISK per booking
+  const avgBookingRevenue = BASE.turnover / (4000 * 0.25); // ~60,140 ISK per booking
+  const extraBookings = 4000 * winratePp;
+  const winrateRevImpact = extraBookings * avgBookingRevenue;
+  const winrateGPImpact = winrateRevImpact * (BASE.gp1/BASE.turnover);
+  s.turnover = BASE.turnover + winrateRevImpact;
+  s.gp1 = s.gp1 + winrateGPImpact;
+
+  // Marketing lever: direct cost change
+  s.marketing = BASE.marketing * (1 + marketingPct);
+  const marketingImpact = s.marketing - BASE.marketing;
+
+  // Headcount: avg staff cost per FTE from budget
+  const costPerFTE = Math.abs(BASE.salaries) / BASE.fte;
+  s.salaries = s.salaries + (headcount * costPerFTE * -1);
+  s.fte = BASE.fte + headcount;
+
+  // EBIT calculations
+  const baseEBIT = calcEBIT(BASE);
+  const scenEBIT = calcEBIT(s);
+  const ebitDelta = scenEBIT - baseEBIT;
+
+  // GP2
+  const baseGP2 = BASE.gp1 + BASE.other;
+  const scenGP2 = s.gp1 + s.other;
+
+  // Update summary cards
+  document.getElementById('sum-turnover').textContent = fmtK(s.turnover) + 'M';
+  document.getElementById('sum-gp1').textContent = fmtK(s.gp1) + 'M';
+  document.getElementById('sum-ebit').textContent = fmtK(scenEBIT) + 'M';
+  document.getElementById('sum-fte').textContent = s.fte.toFixed(1);
+
+  const tDelta = s.turnover - BASE.turnover;
+  const gDelta = s.gp1 - BASE.gp1;
+  const fDelta = s.fte - BASE.fte;
+
+  setDelta('delta-turnover', tDelta, 'M ISK');
+  setDelta('delta-gp1', gDelta, 'M ISK');
+  setDelta('delta-ebit', ebitDelta, 'M ISK');
+  setDeltaFTE('delta-fte', fDelta);
+
+  // Impact pills
+  setPill('pill-salary', salaryImpact, 'ISK');
+  setPill('pill-margin', marginImpact, 'ISK', true);
+  setPill('pill-winrate', winrateGPImpact, 'ISK', true);
+  setPill('pill-marketing', marketingImpact, 'ISK');
+  setPill('pill-headcount', headcount > 0 ? -(headcount * costPerFTE) : headcount < 0 ? (Math.abs(headcount) * costPerFTE) : 0, 'ISK');
+
+  // Active card borders
+  ['salary','margin','winrate','marketing','headcount'].forEach(k => {
+    const s = document.getElementById('slider-'+k);
+    document.getElementById('card-'+k).classList.toggle('active', parseFloat(s.value) !== 0);
+  });
+
+  // Explanation text
+  buildExplanation(salaryPct, marginPp, winratePp, marketingPct, headcount, ebitDelta, salaryImpact, marginImpact, winrateGPImpact, marketingImpact, costPerFTE);
+
+  // Render table
+  renderTable(s, baseEBIT, scenEBIT, scenGP2, baseGP2);
+}
+
+function setDelta(id, delta, unit) {
+  const el = document.getElementById(id);
+  if (Math.abs(delta) < 100) {
+    el.textContent = 'Budget baseline';
+    el.style.color = '#aaa';
+    return;
+  }
+  const sign = delta > 0 ? '+' : '';
+  el.textContent = sign + fmtK(delta) + 'M ' + unit;
+  el.style.color = delta > 0 ? '#1a8a40' : '#cc0000';
+}
+
+function setDeltaFTE(id, delta) {
+  const el = document.getElementById(id);
+  if (delta === 0) {
+    el.textContent = 'Budget baseline';
+    el.style.color = '#aaa';
+  } else {
+    el.textContent = (delta > 0 ? '+' : '') + delta + ' FTE';
+    el.style.color = delta > 0 ? '#888' : '#888';
+  }
+}
+
+function setPill(id, impact, unit, isRevenue) {
+  const el = document.getElementById(id);
+  if (Math.abs(impact) < 100) {
+    el.textContent = 'No change';
+    el.className = 'impact-pill neutral';
+    return;
+  }
+  const isCost = impact < 0;
+  const sign = impact > 0 ? '+' : '';
+  el.textContent = sign + fmtK(impact) + 'M ISK EBIT impact';
+  el.className = 'impact-pill ' + (impact > 0 ? 'positive' : 'negative');
+}
+
+function buildExplanation(salaryPct, marginPp, winratePp, marketingPct, headcount, ebitDelta, salaryImpact, marginImpact, winrateGPImpact, marketingImpact, costPerFTE) {
+  const parts = [];
+  if (salaryPct > 0) parts.push(`A <strong>${(salaryPct*100).toFixed(1)}% salary increase</strong> adds ${fmtK(Math.abs(salaryImpact))}M ISK to cost, directly reducing EBIT.`);
+  if (marginPp > 0) parts.push(`A <strong>${(marginPp*100).toFixed(1)}pp margin improvement</strong> generates ${fmtK(marginImpact)}M ISK additional gross profit.`);
+  if (winratePp > 0) parts.push(`A <strong>${(winratePp*100).toFixed(1)}pp win rate improvement</strong> means ~${Math.round(4000*winratePp)} extra bookings, adding ${fmtK(winrateGPImpact)}M ISK gross profit.`);
+  if (marketingPct !== 0) parts.push(`Marketing budget ${marketingPct>0?'increased':'decreased'} by ${Math.abs(marketingPct*100).toFixed(0)}%, a ${fmtK(Math.abs(marketingImpact))}M ISK ${marketingPct>0?'cost addition':'saving'}.`);
+  if (headcount !== 0) parts.push(`${Math.abs(headcount)} FTE ${headcount>0?'added':'removed'} at avg cost ~${fmtK(costPerFTE)}M ISK/year.`);
+
+  const explEl = document.getElementById('explain-text');
+  if (parts.length === 0) {
+    explEl.innerHTML = 'Move any lever to see the P&L impact in real time. Each lever reflects a real decision a manager might face.';
+    document.querySelector('#explain-box h3').textContent = 'Current scenario';
+  } else {
+    explEl.innerHTML = parts.join(' ') + `<br><br><strong>Combined EBIT impact: ${ebitDelta >= 0 ? '+' : ''}${fmtK(ebitDelta)}M ISK</strong> vs. budget of 19.2M ISK.`;
+    document.querySelector('#explain-box h3').textContent = '📊 What this means';
+  }
+}
+
+function renderTable(sc, baseEBIT, scenEBIT, scenGP2, baseGP2) {
+  const rows = [
+    { type: 'section', label: 'REVENUE' },
+    { label: 'Individual Travel',    a24: ACT24.turnover, e25: EST25.turnover, bud: BASE.turnover, sc: sc.turnover },
+    { label: 'TOTAL TURNOVER',       a24: ACT24.turnover, e25: EST25.turnover, bud: BASE.turnover, sc: sc.turnover, type: 'total' },
+    { type: 'divider' },
+    { label: 'GROSS PROFIT 1',       a24: ACT24.gp1,      e25: EST25.gp1,      bud: BASE.gp1,     sc: sc.gp1,     type: 'gp' },
+    { label: 'Other income',         a24: ACT24.other,    e25: EST25.other,    bud: BASE.other,   sc: sc.other },
+    { label: 'GROSS PROFIT 2',       a24: ACT24.gp1+ACT24.other, e25: EST25.gp1+EST25.other, bud: baseGP2, sc: scenGP2, type: 'gp' },
+    { type: 'section', label: 'CAPACITY COSTS' },
+    { label: 'Sales cost',           a24: ACT24.salesCost, e25: EST25.salesCost, bud: BASE.salesCost, sc: sc.salesCost },
+    { label: 'Marketing',            a24: ACT24.marketing, e25: EST25.marketing, bud: BASE.marketing, sc: sc.marketing },
+    { label: 'Salaries',             a24: ACT24.salaries,  e25: EST25.salaries,  bud: BASE.salaries,  sc: sc.salaries },
+    { label: 'Salaries - allied',    a24: ACT24.salariedAllied, e25: EST25.salariedAllied, bud: BASE.salariedAllied, sc: sc.salariedAllied },
+    { label: 'Training',             a24: ACT24.training,  e25: EST25.training,  bud: BASE.training,  sc: sc.training },
+    { label: 'Staff cost',           a24: ACT24.staffCost, e25: EST25.staffCost, bud: BASE.staffCost, sc: sc.staffCost },
+    { label: 'Travel cost',          a24: ACT24.travelCost,e25: EST25.travelCost,bud: BASE.travelCost,sc: sc.travelCost },
+    { label: 'SLAs',                 a24: ACT24.sla,       e25: EST25.sla,       bud: BASE.sla,       sc: sc.sla },
+    { label: 'Occupancy',            a24: ACT24.occupancy, e25: EST25.occupancy, bud: BASE.occupancy, sc: sc.occupancy },
+    { label: 'IT & Comms',           a24: ACT24.itComms,   e25: EST25.itComms,   bud: BASE.itComms,   sc: sc.itComms },
+    { label: 'Prof. fees & Sundry',  a24: ACT24.profFees+ACT24.sundry, e25: EST25.profFees+EST25.sundry, bud: BASE.profFees+BASE.sundry, sc: sc.profFees+sc.sundry },
+    { label: 'Depreciation',         a24: ACT24.depreciation, e25: EST25.depreciation, bud: BASE.depreciation, sc: sc.depreciation },
+    { type: 'divider' },
+    { label: 'EBIT',                 a24: calcEBIT(ACT24), e25: calcEBIT(EST25), bud: baseEBIT, sc: scenEBIT, type: 'ebit' },
+    { label: 'Financial items',      a24: ACT24.financialItems, e25: EST25.financialItems, bud: BASE.financialItems, sc: sc.financialItems },
+    { type: 'section', label: 'KEY RATIOS' },
+    { label: 'GP1 margin',           ratioA24: ACT24.gp1/ACT24.turnover, ratioE25: EST25.gp1/EST25.turnover, ratioBud: BASE.gp1/BASE.turnover, ratioSc: sc.gp1/sc.turnover, isRatio: true },
+    { label: 'Staff / GP1 ratio',    ratioA24: ACT24.gp1/Math.abs(ACT24.salaries+ACT24.salariedAllied), ratioE25: EST25.gp1/Math.abs(EST25.salaries+EST25.salariedAllied), ratioBud: BASE.gp1/Math.abs(BASE.salaries+BASE.salariedAllied), ratioSc: sc.gp1/Math.abs(sc.salaries+sc.salariedAllied), isRatio: true, isRatioX: true },
+    { label: 'FTE count',            a24: 7, e25: 7.9, bud: BASE.fte, sc: sc.fte, isFTE: true },
+  ];
+
+  let html = '';
+  for (const row of rows) {
+    if (row.type === 'divider') {
+      html += '<div class="divider"></div>';
+      continue;
+    }
+    if (row.type === 'section') {
+      html += `<div class="pl-row section-header"><div class="row-label">${row.label}</div></div>`;
+      continue;
+    }
+    const typeClass = row.type === 'ebit' ? 'ebit-row' : row.type === 'gp' ? 'gp-row' : row.type === 'total' ? 'total-row' : '';
+
+    if (row.isRatio) {
+      const delta = row.ratioSc - row.ratioBud;
+      const absDelta = Math.abs(delta);
+      const sign = delta >= 0 ? '+' : '-';
+      const dc = Math.abs(delta) < 0.001 ? 'zero' : delta > 0 ? 'pos' : 'neg';
+      const fmtR = v => row.isRatioX ? v.toFixed(2)+'x' : (v*100).toFixed(1)+'%';
+      const fmtD = v => row.isRatioX ? sign+(absDelta).toFixed(2)+'x' : sign+(absDelta*100).toFixed(1)+'pp';
+      html += `<div class="pl-row ${typeClass}">
+        <div class="row-label">${row.label}</div>
+        <div class="row-val">${fmtR(row.ratioA24)}</div>
+        <div class="row-val">${fmtR(row.ratioE25)}</div>
+        <div class="row-val budget">${fmtR(row.ratioBud)}</div>
+        <div class="row-val scenario">${fmtR(row.ratioSc)}</div>
+        <div class="row-val delta ${dc}">${Math.abs(delta)<0.001?'—':fmtD(delta)}</div>
+      </div>`;
+      continue;
+    }
+
+    if (row.isFTE) {
+      const delta = row.sc - row.bud;
+      const dc = delta === 0 ? 'zero' : delta > 0 ? 'pos' : 'neg';
+      html += `<div class="pl-row ${typeClass}">
+        <div class="row-label">${row.label}</div>
+        <div class="row-val">${row.a24.toFixed(1)}</div>
+        <div class="row-val">${row.e25.toFixed(1)}</div>
+        <div class="row-val budget">${row.bud.toFixed(1)}</div>
+        <div class="row-val scenario">${row.sc.toFixed(1)}</div>
+        <div class="row-val delta ${dc}">${delta===0?'—':(delta>0?'+':'')+delta.toFixed(1)}</div>
+      </div>`;
+      continue;
+    }
+
+    const delta = row.sc - row.bud;
+    const absDelta = Math.abs(delta);
+    const dc = absDelta < 100 ? 'zero' : delta > 0 ? 'pos' : 'neg';
+
+    html += `<div class="pl-row ${typeClass}">
+      <div class="row-label">${row.label}</div>
+      <div class="row-val">${fmt(row.a24)}</div>
+      <div class="row-val">${fmt(row.e25)}</div>
+      <div class="row-val budget">${fmt(row.bud)}</div>
+      <div class="row-val scenario">${fmt(row.sc)}</div>
+      <div class="row-val delta ${dc}">${fmtDelta(delta)}</div>
+    </div>`;
+  }
+
+  document.getElementById('pl-body').innerHTML = html;
+}
+
+function resetAll() {
+  ['salary','margin','winrate','marketing','headcount'].forEach(k => {
+    const s = document.getElementById('slider-'+k);
+    s.value = k === 'marketing' ? 0 : 0;
+  });
+  update();
+}
+
+// Initial render
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILROY — The Funnel Exercise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #FF4713;
+  --black: #0f0f0f;
+  --white: #ffffff;
+  --grey: #888;
+  --light: #f2f1ef;
+  --card-bg: #1a1a1a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── PHASES ─── */
+.phase { display: none; min-height: 100vh; }
+.phase.active { display: flex; flex-direction: column; }
+
+/* ─── PHASE 0: HOOK ─── */
+#phase-0 {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px 40px;
+  position: relative;
+  background: var(--black);
+}
+#phase-0::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgba(255,71,19,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hook-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 28px;
+}
+.hook-headline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(52px, 8vw, 110px);
+  font-weight: 900;
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  margin-bottom: 32px;
+}
+.hook-headline em {
+  color: var(--orange);
+  font-style: normal;
+  display: block;
+}
+.hook-sub {
+  font-size: 18px;
+  font-weight: 300;
+  color: #aaa;
+  max-width: 580px;
+  line-height: 1.6;
+  margin: 0 auto 48px;
+}
+.hook-numbers {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  margin-bottom: 56px;
+}
+.hook-num {
+  text-align: center;
+}
+.hook-num .n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: var(--orange);
+  line-height: 1;
+}
+.hook-num .l {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--grey);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+/* ─── BUTTONS ─── */
+.btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 16px 40px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: inline-block;
+}
+.btn-primary {
+  background: var(--orange);
+  color: white;
+}
+.btn-primary:hover { background: #e03d0f; transform: translateY(-2px); }
+.btn-outline {
+  background: transparent;
+  color: white;
+  border: 2px solid #444;
+}
+.btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+.btn-white {
+  background: white;
+  color: var(--black);
+}
+.btn-white:hover { background: #e8e8e8; transform: translateY(-2px); }
+
+/* ─── PHASE 1: THE SCENARIOS ─── */
+#phase-1 {
+  padding: 0;
+  background: var(--light);
+  color: var(--black);
+}
+.phase1-header {
+  background: var(--black);
+  color: white;
+  padding: 28px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--orange);
+}
+.phase1-header .left h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+.phase1-header .left p {
+  font-size: 13px;
+  color: #888;
+  margin-top: 3px;
+}
+.phase1-header .right {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 2px solid var(--orange);
+  padding: 8px 20px;
+  border-radius: 4px;
+}
+
+.scenarios-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  flex: 1;
+  padding: 32px 32px 24px;
+  gap: 16px;
+}
+
+.scenario-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 3px solid transparent;
+  transition: all 0.25s;
+  cursor: pointer;
+  position: relative;
+}
+.scenario-card:hover { border-color: var(--orange); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+.scenario-card.voted { border-color: var(--orange); }
+.scenario-card.voted .card-badge { opacity: 1; }
+
+.card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--orange);
+  color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card-header {
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.card-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+.card-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--black);
+  line-height: 1;
+}
+
+/* FUNNEL VISUAL */
+.funnel-visual {
+  padding: 20px 16px;
+  flex: 1;
+}
+.funnel-step {
+  margin-bottom: 6px;
+  position: relative;
+}
+.funnel-bar-wrap {
+  position: relative;
+  height: 36px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f5f5f5;
+  margin-bottom: 3px;
+}
+.funnel-bar {
+  height: 100%;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.funnel-bar span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+  white-space: nowrap;
+}
+.funnel-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.funnel-step-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.funnel-rate {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+}
+.funnel-arrow {
+  text-align: center;
+  font-size: 11px;
+  color: #ccc;
+  margin: 2px 0 4px;
+}
+
+/* GP RESULT BOX */
+.gp-result {
+  margin: 8px 16px 16px;
+  background: var(--black);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.gp-result .gp-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.gp-result .gp-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--orange);
+}
+.gp-result .gp-unit {
+  font-size: 11px;
+  color: #666;
+  margin-top: 1px;
+}
+
+.vote-area {
+  padding: 0 16px 16px;
+}
+.vote-btn {
+  width: 100%;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid #e0e0e0;
+  background: white;
+  color: #aaa;
+  transition: all 0.2s;
+}
+.vote-btn:hover, .scenario-card.voted .vote-btn {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: #fff5f2;
+}
+
+.phase1-footer {
+  background: white;
+  border-top: 1px solid #e8e8e8;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.phase1-footer p {
+  font-size: 13px;
+  color: #888;
+}
+.phase1-footer p strong { color: var(--black); }
+
+/* ─── PHASE 2: THE REVEAL ─── */
+#phase-2 {
+  background: var(--black);
+  color: white;
+  padding: 0;
+}
+.reveal-header {
+  padding: 28px 48px;
+  border-bottom: 3px solid var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.reveal-header h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+.reveal-header h2 em { color: var(--orange); font-style: normal; }
+
+.reveal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 28px 32px;
+}
+
+.reveal-card {
+  background: #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #2a2a2a;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.reveal-card.shown { opacity: 1; transform: translateY(0); }
+.reveal-card.is-winner { border-color: var(--orange); }
+
+.rc-top {
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+.rc-scenario-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 4px;
+}
+.rc-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.rc-metrics {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rc-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #222;
+}
+.rc-metric:last-child { border-bottom: none; }
+.rc-metric-label {
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
+}
+.rc-metric-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+}
+.metric-green { color: #4ade80; }
+.metric-amber { color: #fbbf24; }
+.metric-red { color: #f87171; }
+.metric-orange { color: var(--orange); }
+
+/* Gauge bars */
+.gauge-wrap { display: flex; align-items: center; gap: 8px; }
+.gauge-track {
+  flex: 1;
+  height: 6px;
+  background: #2a2a2a;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.gauge-fill { height: 100%; border-radius: 3px; transition: width 0.8s; }
+
+.rc-verdict {
+  margin: 0 18px 18px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.verdict-good { background: rgba(74,222,128,0.1); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+.verdict-neutral { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+.verdict-warn { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.2); }
+
+/* ─── PHASE 3: INSIGHTS ─── */
+#phase-3 {
+  background: var(--light);
+  color: var(--black);
+}
+.insights-header {
+  background: var(--black);
+  color: white;
+  padding: 28px 48px;
+  border-bottom: 3px solid var(--orange);
+}
+.insights-header h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.insights-header h2 em { color: var(--orange); font-style: normal; }
+.insights-header p { color: #888; font-size: 14px; margin-top: 4px; }
+
+.insights-body {
+  padding: 32px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.insight-block {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+}
+.insight-block.full-width { grid-column: 1 / -1; }
+.insight-block.dark {
+  background: var(--black);
+  color: white;
+}
+
+.ib-eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 10px;
+}
+.ib-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.ib-body {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #444;
+}
+.insight-block.dark .ib-body { color: #aaa; }
+
+.drivers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+.driver-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+.driver-icon {
+  font-size: 18px;
+  line-height: 1;
+  margin-top: 1px;
+}
+.driver-content {}
+.driver-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 2px;
+}
+.driver-desc {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.4;
+}
+.insight-block.dark .driver-item { background: #222; }
+.insight-block.dark .driver-title { color: white; }
+
+.discussion-q {
+  background: var(--orange);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 10px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.3;
+  color: white;
+}
+
+/* Compare table */
+.compare-table {
+  width: 100%;
+  margin-top: 14px;
+  border-collapse: collapse;
+}
+.compare-table th {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--orange);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid #2a2a2a;
+}
+.compare-table td {
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #222;
+  color: #aaa;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td:first-child { color: white; font-weight: 600; }
+.compare-table td.good { color: #4ade80; font-weight: 700; }
+.compare-table td.bad { color: #f87171; font-weight: 700; }
+.compare-table td.meh { color: #fbbf24; font-weight: 700; }
+
+/* NAV BAR */
+.nav-bar {
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: auto;
+}
+.nav-bar.dark-nav {
+  background: #111;
+  border-top: 1px solid #222;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 8px;
+}
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #333;
+  transition: background 0.3s;
+}
+.dot.active { background: var(--orange); }
+
+/* VOTE COUNTER */
+.vote-counter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #888;
+}
+.vote-counter .count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--orange);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.6s ease forwards; }
+
+/* Kilroy mark */
+.kilroy-mark {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  color: var(--orange);
+}
+
+/* winner crown */
+.winner-tag {
+  display: inline-block;
+  background: var(--orange);
+  color: white;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PHASE 0: THE HOOK
+══════════════════════════════════════ -->
+<div class="phase active" id="phase-0">
+  <div class="hook-eyebrow">KILROY Leadership Academy · Module 6</div>
+  <div class="hook-headline">
+    Same profit.<br>
+    <em>Very different worlds.</em>
+  </div>
+  <p class="hook-sub">Four markets. Four very different sales funnels. All generating the same gross profit. Which one would you choose to run?</p>
+  <div class="hook-numbers">
+    <div class="hook-num">
+      <div class="n">4</div>
+      <div class="l">Scenarios</div>
+    </div>
+    <div class="hook-num">
+      <div class="n">≈</div>
+      <div class="l">Same GP</div>
+    </div>
+    <div class="hook-num">
+      <div class="n">∞</div>
+      <div class="l">Difference</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="goTo(1)">See the four scenarios →</button>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PHASE 1: THE SCENARIOS (blind)
+══════════════════════════════════════ -->
+<div class="phase" id="phase-1">
+  <div class="phase1-header">
+    <div class="left">
+      <h2>The Four Funnels</h2>
+      <p>All four markets generated ~150M ISK gross profit last year. Pick the one you'd most want to run.</p>
+    </div>
+    <div class="right">Step 1 of 3 — Vote</div>
+  </div>
+
+  <div class="scenarios-grid">
+
+    <!-- SCENARIO A -->
+    <div class="scenario-card" id="sc-A" onclick="vote('A')">
+      <div class="card-badge">My pick ✓</div>
+      <div class="card-header">
+        <div class="card-label">Scenario A</div>
+        <div class="card-name">The Volume Machine</div>
+      </div>
+      <div class="funnel-visual">
+        <!-- Requests -->
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:#2a2a2a;">
+              <span>6,000 requests</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Inbound Leads</span>
+            <span class="funnel-rate">100%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Offer Rate 42%</div>
+        <!-- Offers -->
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:42%;background:#444;">
+              <span>2,520</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Offers sent</span>
+            <span class="funnel-rate">42%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Hit Rate 48%</div>
+        <!-- Journeys -->
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:20%;background:#666;">
+              <span>1,210</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Confirmed</span>
+            <span class="funnel-rate">48%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow" style="margin-top:8px;">─────────────</div>
+        <div class="funnel-label-row" style="margin-top:4px;">
+          <span class="funnel-step-name" style="font-weight:800;color:#333;">Win Rate (overall)</span>
+          <span class="funnel-rate" style="font-size:18px;font-weight:900;">20%</span>
+        </div>
+      </div>
+      <div class="gp-result">
+        <div><div class="gp-label">Gross Profit</div><div class="gp-unit">same as all others</div></div>
+        <div class="gp-value">~150M ISK</div>
+      </div>
+      <div class="vote-area">
+        <button class="vote-btn" onclick="vote('A'); event.stopPropagation()">I'd run this market</button>
+      </div>
+    </div>
+
+    <!-- SCENARIO B -->
+    <div class="scenario-card" id="sc-B" onclick="vote('B')">
+      <div class="card-badge">My pick ✓</div>
+      <div class="card-header">
+        <div class="card-label">Scenario B</div>
+        <div class="card-name">The Balanced Approach</div>
+      </div>
+      <div class="funnel-visual">
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:#2a2a2a;">
+              <span>4,000 requests</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Inbound Leads</span>
+            <span class="funnel-rate">100%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Offer Rate 47%</div>
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:47%;background:#444;">
+              <span>1,880</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Offers sent</span>
+            <span class="funnel-rate">47%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Hit Rate 64%</div>
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:30%;background:#666;">
+              <span>1,203</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Confirmed</span>
+            <span class="funnel-rate">64%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow" style="margin-top:8px;">─────────────</div>
+        <div class="funnel-label-row" style="margin-top:4px;">
+          <span class="funnel-step-name" style="font-weight:800;color:#333;">Win Rate (overall)</span>
+          <span class="funnel-rate" style="font-size:18px;font-weight:900;">30%</span>
+        </div>
+      </div>
+      <div class="gp-result">
+        <div><div class="gp-label">Gross Profit</div><div class="gp-unit">same as all others</div></div>
+        <div class="gp-value">~150M ISK</div>
+      </div>
+      <div class="vote-area">
+        <button class="vote-btn" onclick="vote('B'); event.stopPropagation()">I'd run this market</button>
+      </div>
+    </div>
+
+    <!-- SCENARIO C -->
+    <div class="scenario-card" id="sc-C" onclick="vote('C')">
+      <div class="card-badge">My pick ✓</div>
+      <div class="card-header">
+        <div class="card-label">Scenario C</div>
+        <div class="card-name">The Craftsman</div>
+      </div>
+      <div class="funnel-visual">
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:#2a2a2a;">
+              <span>2,500 requests</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Inbound Leads</span>
+            <span class="funnel-rate">100%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Offer Rate 65%</div>
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:65%;background:#444;">
+              <span>1,625</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Offers sent</span>
+            <span class="funnel-rate">65%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Hit Rate 74%</div>
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:48%;background:#FF4713;">
+              <span>1,202</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Confirmed</span>
+            <span class="funnel-rate">74%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow" style="margin-top:8px;">─────────────</div>
+        <div class="funnel-label-row" style="margin-top:4px;">
+          <span class="funnel-step-name" style="font-weight:800;color:#333;">Win Rate (overall)</span>
+          <span class="funnel-rate" style="font-size:18px;font-weight:900;color:var(--orange);">48%</span>
+        </div>
+      </div>
+      <div class="gp-result">
+        <div><div class="gp-label">Gross Profit</div><div class="gp-unit">same as all others</div></div>
+        <div class="gp-value">~150M ISK</div>
+      </div>
+      <div class="vote-area">
+        <button class="vote-btn" onclick="vote('C'); event.stopPropagation()">I'd run this market</button>
+      </div>
+    </div>
+
+    <!-- SCENARIO D -->
+    <div class="scenario-card" id="sc-D" onclick="vote('D')">
+      <div class="card-badge">My pick ✓</div>
+      <div class="card-header">
+        <div class="card-label">Scenario D</div>
+        <div class="card-name">The Precision Player</div>
+      </div>
+      <div class="funnel-visual">
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:100%;background:#2a2a2a;">
+              <span>1,500 requests</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Inbound Leads</span>
+            <span class="funnel-rate">100%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Offer Rate 88%</div>
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:88%;background:#444;">
+              <span>1,320</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Offers sent</span>
+            <span class="funnel-rate">88%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow">↓ Hit Rate 91%</div>
+        <div class="funnel-step">
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:79%;background:#2a7a2a;">
+              <span>1,201</span>
+            </div>
+          </div>
+          <div class="funnel-label-row">
+            <span class="funnel-step-name">Confirmed</span>
+            <span class="funnel-rate">91%</span>
+          </div>
+        </div>
+        <div class="funnel-arrow" style="margin-top:8px;">─────────────</div>
+        <div class="funnel-label-row" style="margin-top:4px;">
+          <span class="funnel-step-name" style="font-weight:800;color:#333;">Win Rate (overall)</span>
+          <span class="funnel-rate" style="font-size:18px;font-weight:900;">80%</span>
+        </div>
+      </div>
+      <div class="gp-result">
+        <div><div class="gp-label">Gross Profit</div><div class="gp-unit">same as all others</div></div>
+        <div class="gp-value">~150M ISK</div>
+      </div>
+      <div class="vote-area">
+        <button class="vote-btn" onclick="vote('D'); event.stopPropagation()">I'd run this market</button>
+      </div>
+    </div>
+
+  </div><!-- end scenarios-grid -->
+
+  <div class="phase1-footer">
+    <div class="vote-counter">
+      <span>Your vote:</span>
+      <span class="count" id="vote-display">—</span>
+    </div>
+    <p>All four markets hit the same gross profit. <strong>The difference is in how they got there.</strong></p>
+    <button class="btn btn-primary" id="reveal-btn" onclick="goTo(2)" disabled style="opacity:0.4;">Reveal what's underneath →</button>
+  </div>
+</div><!-- end phase-1 -->
+
+
+<!-- ══════════════════════════════════════
+     PHASE 2: THE REVEAL
+══════════════════════════════════════ -->
+<div class="phase" id="phase-2">
+  <div class="reveal-header">
+    <div>
+      <h2>The <em>real</em> picture</h2>
+      <p style="font-size:13px;color:#888;margin-top:4px;">Same gross profit. Very different operational realities.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="kilroy-mark">KiLROY</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#888;letter-spacing:2px;text-transform:uppercase;">Step 2 of 3 — Reveal</div>
+    </div>
+  </div>
+
+  <div class="reveal-grid">
+
+    <!-- REVEAL A -->
+    <div class="reveal-card" id="rv-A">
+      <div class="rc-top">
+        <div class="rc-scenario-label">Scenario A</div>
+        <div class="rc-name">The Volume Machine</div>
+      </div>
+      <div class="rc-metrics">
+        <div class="rc-metric">
+          <span class="rc-metric-label">FTE needed</span>
+          <span class="rc-metric-value metric-red">~12 FTE</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Requests per TA</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:100%;background:#f87171;"></div></div>
+            <span class="rc-metric-value metric-red">500+</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Marketing spend</span>
+          <span class="rc-metric-value metric-red">Very high</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Customer experience</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:20%;background:#f87171;"></div></div>
+            <span class="rc-metric-value metric-red">Rushed</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Staff burnout risk</span>
+          <span class="rc-metric-value metric-red">High 🔥</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Scalability</span>
+          <span class="rc-metric-value metric-amber">Volume-limited</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Win rate</span>
+          <span class="rc-metric-value metric-red">20%</span>
+        </div>
+      </div>
+      <div class="rc-verdict verdict-warn">
+        Running fast, but at full cost. Every extra booking requires more staff and more marketing. Hard to grow without proportional spend.
+      </div>
+    </div>
+
+    <!-- REVEAL B -->
+    <div class="reveal-card" id="rv-B">
+      <div class="rc-top">
+        <div class="rc-scenario-label">Scenario B</div>
+        <div class="rc-name">The Balanced Approach</div>
+      </div>
+      <div class="rc-metrics">
+        <div class="rc-metric">
+          <span class="rc-metric-label">FTE needed</span>
+          <span class="rc-metric-value metric-amber">~8 FTE</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Requests per TA</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:67%;background:#fbbf24;"></div></div>
+            <span class="rc-metric-value metric-amber">~333</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Marketing spend</span>
+          <span class="rc-metric-value metric-amber">Moderate</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Customer experience</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:50%;background:#fbbf24;"></div></div>
+            <span class="rc-metric-value metric-amber">Decent</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Staff burnout risk</span>
+          <span class="rc-metric-value metric-amber">Medium</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Scalability</span>
+          <span class="rc-metric-value metric-amber">Manageable</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Win rate</span>
+          <span class="rc-metric-value metric-amber">30%</span>
+        </div>
+      </div>
+      <div class="rc-verdict verdict-neutral">
+        This is roughly where most KILROY markets are today. Solid, but there's meaningful upside. The question is: which lever moves you toward C?
+      </div>
+    </div>
+
+    <!-- REVEAL C -->
+    <div class="reveal-card is-winner" id="rv-C">
+      <div class="rc-top" style="border-bottom:1px solid #2a2a2a;">
+        <div class="rc-scenario-label">Scenario C <span class="winner-tag">Most popular vote</span></div>
+        <div class="rc-name">The Craftsman</div>
+      </div>
+      <div class="rc-metrics">
+        <div class="rc-metric">
+          <span class="rc-metric-label">FTE needed</span>
+          <span class="rc-metric-value metric-green">~5 FTE</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Requests per TA</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:42%;background:#4ade80;"></div></div>
+            <span class="rc-metric-value metric-green">~208</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Marketing spend</span>
+          <span class="rc-metric-value metric-green">Lower</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Customer experience</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:80%;background:#4ade80;"></div></div>
+            <span class="rc-metric-value metric-green">Excellent</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Staff burnout risk</span>
+          <span class="rc-metric-value metric-green">Low ✓</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Scalability</span>
+          <span class="rc-metric-value metric-green">High quality</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Win rate</span>
+          <span class="rc-metric-value metric-orange">48%</span>
+        </div>
+      </div>
+      <div class="rc-verdict verdict-good">
+        Better margins, lower headcount need, happier staff, better customer experience. The question is: what does it take to get here from Scenario B?
+      </div>
+    </div>
+
+    <!-- REVEAL D -->
+    <div class="reveal-card" id="rv-D">
+      <div class="rc-top">
+        <div class="rc-scenario-label">Scenario D</div>
+        <div class="rc-name">The Precision Player</div>
+      </div>
+      <div class="rc-metrics">
+        <div class="rc-metric">
+          <span class="rc-metric-label">FTE needed</span>
+          <span class="rc-metric-value metric-green">~3 FTE</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Requests per TA</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:25%;background:#4ade80;"></div></div>
+            <span class="rc-metric-value metric-green">~125</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Marketing spend</span>
+          <span class="rc-metric-value metric-green">Very low</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Customer experience</span>
+          <div class="gauge-wrap">
+            <div class="gauge-track"><div class="gauge-fill" style="width:100%;background:#4ade80;"></div></div>
+            <span class="rc-metric-value metric-green">Elite</span>
+          </div>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Lead quality needed</span>
+          <span class="rc-metric-value metric-red">Extremely high</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Market size risk</span>
+          <span class="rc-metric-value metric-red">High — niche</span>
+        </div>
+        <div class="rc-metric">
+          <span class="rc-metric-label">Win rate</span>
+          <span class="rc-metric-value metric-green">80%</span>
+        </div>
+      </div>
+      <div class="rc-verdict verdict-neutral">
+        Beautiful on paper. But 80% win rates require near-perfect lead qualification and elite TA skill. One bad month of lead quality breaks the model.
+      </div>
+    </div>
+
+  </div><!-- reveal-grid -->
+
+  <div class="nav-bar dark-nav">
+    <div class="progress-dots">
+      <div class="dot"></div><div class="dot active"></div><div class="dot"></div>
+    </div>
+    <p style="font-size:13px;color:#666;">Same gross profit. Scenario A needed <span style="color:#f87171;font-weight:700;">12 FTE</span> to get there. Scenario C needed <span style="color:#4ade80;font-weight:700;">5 FTE.</span> That's the conversation.</p>
+    <button class="btn btn-white" onclick="goTo(3)">What drives the difference? →</button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PHASE 3: THE INSIGHTS
+══════════════════════════════════════ -->
+<div class="phase" id="phase-3">
+  <div class="insights-header">
+    <h2>From <em>B to C</em> — What actually moves the needle</h2>
+    <p>The funnel doesn't improve by accident. Here's what drives each rate — and what you can do about it.</p>
+  </div>
+
+  <div class="insights-body">
+
+    <!-- Offer Rate drivers -->
+    <div class="insight-block">
+      <div class="ib-eyebrow">Lever 1 — Offer Rate</div>
+      <div class="ib-title">More requests becoming offers</div>
+      <div class="ib-body">The offer rate tells you how many inbound requests your TAs actually engage with properly. A low rate means requests are being dropped, ignored, or unqualified without reaching offer stage.</div>
+      <div class="drivers-list">
+        <div class="driver-item">
+          <div class="driver-icon">🎯</div>
+          <div class="driver-content">
+            <div class="driver-title">Lead quality from marketing</div>
+            <div class="driver-desc">Better-qualified traffic converts more easily. Are your marketing channels sending the right customers?</div>
+          </div>
+        </div>
+        <div class="driver-item">
+          <div class="driver-icon">⚡</div>
+          <div class="driver-content">
+            <div class="driver-title">Speed of first response</div>
+            <div class="driver-desc">Requests that get a response within 2 hours have significantly higher offer rates. Time kills deals.</div>
+          </div>
+        </div>
+        <div class="driver-item">
+          <div class="driver-icon">🗂️</div>
+          <div class="driver-content">
+            <div class="driver-title">Pipeline hygiene & task discipline</div>
+            <div class="driver-desc">TAs with overdue tasks let requests fall through the cracks. This is visible in your Salesforce Operations dashboard right now.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hit Rate drivers -->
+    <div class="insight-block">
+      <div class="ib-eyebrow">Lever 2 — Hit Rate</div>
+      <div class="ib-title">More offers converting to bookings</div>
+      <div class="ib-body">Once an offer is sent, does it convert? Hit rate is your TA's ability to create compelling offers and follow them through to confirmation. This is where expertise lives.</div>
+      <div class="drivers-list">
+        <div class="driver-item">
+          <div class="driver-icon">✍️</div>
+          <div class="driver-content">
+            <div class="driver-title">Offer quality & personalisation</div>
+            <div class="driver-desc">Generic offers get ignored. Personalised, well-structured journeys get booked. Know your customer before you write.</div>
+          </div>
+        </div>
+        <div class="driver-item">
+          <div class="driver-icon">📞</div>
+          <div class="driver-content">
+            <div class="driver-title">Follow-up discipline</div>
+            <div class="driver-desc">Most bookings don't happen at first contact. Consistent, timely follow-up is the single biggest differentiator in hit rate.</div>
+          </div>
+        </div>
+        <div class="driver-item">
+          <div class="driver-icon">🧠</div>
+          <div class="driver-content">
+            <div class="driver-title">Product knowledge & trust</div>
+            <div class="driver-desc">A TA who knows the product deeply can handle objections, suggest alternatives, and build confidence. Training pays off here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary table -->
+    <div class="insight-block dark full-width">
+      <div class="ib-eyebrow">The full picture — side by side</div>
+      <div class="ib-title" style="color:white;">What moving from B to C actually requires</div>
+      <table class="compare-table">
+        <tr>
+          <th>Factor</th>
+          <th>Scenario A (20% WR)</th>
+          <th>Scenario B (30% WR)</th>
+          <th>Scenario C (48% WR)</th>
+          <th>Scenario D (80% WR)</th>
+        </tr>
+        <tr>
+          <td>Inbound requests needed</td>
+          <td class="bad">6,000</td>
+          <td class="meh">4,000</td>
+          <td class="good">2,500</td>
+          <td class="good">1,500</td>
+        </tr>
+        <tr>
+          <td>Marketing spend pressure</td>
+          <td class="bad">Very high</td>
+          <td class="meh">Moderate</td>
+          <td class="good">Lower</td>
+          <td class="good">Minimal</td>
+        </tr>
+        <tr>
+          <td>FTE required</td>
+          <td class="bad">~12</td>
+          <td class="meh">~8</td>
+          <td class="good">~5</td>
+          <td class="good">~3</td>
+        </tr>
+        <tr>
+          <td>Staff salary cost (est.)</td>
+          <td class="bad">+75% vs budget</td>
+          <td class="meh">Baseline</td>
+          <td class="good">−30%</td>
+          <td class="good">−55%</td>
+        </tr>
+        <tr>
+          <td>EBIT impact vs. Scenario B</td>
+          <td class="bad">Significantly lower</td>
+          <td class="meh">Baseline</td>
+          <td class="good">+20–30M ISK</td>
+          <td class="good">+35M ISK</td>
+        </tr>
+        <tr>
+          <td>Lead quality requirement</td>
+          <td class="bad">Low — just volume</td>
+          <td class="meh">Medium</td>
+          <td class="good">High — intent-driven</td>
+          <td class="bad">Extremely high — niche</td>
+        </tr>
+        <tr>
+          <td>Risk of this model</td>
+          <td class="bad">Burnout, cost creep</td>
+          <td class="meh">Stagnation</td>
+          <td class="good">Requires skill investment</td>
+          <td class="bad">Market size ceiling</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Discussion prompt -->
+    <div class="insight-block">
+      <div class="ib-eyebrow">For your market</div>
+      <div class="ib-title">Where are you right now?</div>
+      <div class="ib-body">Look at your own Salesforce Performance Dashboard. Where does your market sit on the funnel? Which rate — offer, hit, or win — has the most room to improve?</div>
+      <div class="discussion-q">Where is YOUR single biggest leakage point in the funnel?</div>
+    </div>
+
+    <div class="insight-block">
+      <div class="ib-eyebrow">The key takeaway</div>
+      <div class="ib-title">Same GP. Half the staff. Better experience.</div>
+      <div class="ib-body">Moving from Scenario B to C doesn't just reduce operational cost. It frees up capacity, improves customer experience, reduces burnout — and creates the headroom to grow revenue without a proportional increase in headcount.</div>
+      <div class="discussion-q">What's ONE thing you'll try differently next week?</div>
+    </div>
+
+  </div><!-- insights-body -->
+
+  <div class="nav-bar" style="background:white;border-top:1px solid #e0e0e0;">
+    <div class="kilroy-mark" style="font-size:14px;">KiLROY Leadership Academy · Module 6 Complete</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="goTo(0)" style="font-size:13px;padding:10px 20px;color:#333;border-color:#ccc;">↺ Start over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentVote = null;
+
+function vote(scenario) {
+  // Clear previous
+  ['A','B','C','D'].forEach(s => {
+    document.getElementById('sc-'+s).classList.remove('voted');
+  });
+  currentVote = scenario;
+  document.getElementById('sc-'+scenario).classList.add('voted');
+  document.getElementById('vote-display').textContent = 'Scenario ' + scenario;
+
+  // Enable reveal button
+  const btn = document.getElementById('reveal-btn');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+
+function goTo(phase) {
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+  document.getElementById('phase-'+phase).classList.add('active');
+  window.scrollTo(0, 0);
+
+  if (phase === 2) {
+    // Animate reveal cards in sequence
+    const cards = ['rv-A','rv-B','rv-C','rv-D'];
+    cards.forEach((id, i) => {
+      setTimeout(() => {
+        document.getElementById(id).classList.add('shown');
+      }, 200 + i * 180);
+    });
+  }
+}
+</script>
+</body>
+</html>

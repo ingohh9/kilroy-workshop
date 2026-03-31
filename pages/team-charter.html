@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILROY — Team Charter</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --orange: #FF4713; --black: #1a1a1a; --bg: #fafaf8; --card: white; --border: #ebe9e4; --muted: #888; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--black); min-height: 100vh; }
+
+  .header { background: var(--black); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 22px; font-weight: 800; color: white; }
+  .header .sub { font-size: 12px; color: #666; margin-top: 3px; }
+  .header .badge { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); border: 1.5px solid var(--orange); padding: 5px 14px; border-radius: 3px; }
+  .strip { background: var(--orange); padding: 10px 40px; font-size: 12px; font-weight: 600; color: white; letter-spacing: 0.5px; }
+
+  .content { max-width: 900px; margin: 0 auto; padding: 28px 32px 80px; }
+
+  .section { margin-bottom: 32px; }
+  .section-num { font-size: 10px; font-weight: 800; color: var(--orange); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .section-title { font-size: 18px; font-weight: 800; color: var(--black); margin-bottom: 4px; }
+  .section-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 12px; }
+
+  .field-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .field-input { width: 100%; border: 1.5px solid #e8e5e0; border-radius: 8px; padding: 10px 14px; font-family: inherit; font-size: 14px; color: var(--black); background: #fafaf8; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; }
+  .field-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,71,19,.08); }
+  .field-input::placeholder { color: #ccc; }
+  textarea.field-input { min-height: 60px; }
+
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+
+  .commitment-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f0ede8; }
+  .commitment-row:last-child { border-bottom: none; }
+  .commitment-num { width: 28px; height: 28px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; flex-shrink: 0; margin-top: 2px; }
+  .commitment-body { flex: 1; }
+  .commitment-title { font-size: 14px; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+  .commitment-detail { font-size: 12px; color: var(--muted); font-style: italic; margin-bottom: 8px; line-height: 1.4; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .kpi-table { width: 100%; border-collapse: collapse; }
+  .kpi-table th { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: left; padding: 8px 10px; border-bottom: 2px solid var(--border); }
+  .kpi-table td { padding: 8px 10px; border-bottom: 1px solid #f0ede8; vertical-align: middle; }
+  .kpi-table td:first-child { font-size: 13px; font-weight: 600; color: var(--black); }
+  .kpi-table .current { font-size: 12px; color: var(--muted); }
+  .kpi-table input { width: 100%; border: 1.5px solid #e8e5e0; border-radius: 6px; padding: 6px 10px; font-family: inherit; font-size: 13px; color: var(--black); background: #fafaf8; }
+  .kpi-table input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(255,71,19,.08); }
+
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .sig-card { background: #fafaf8; border: 1px dashed #ddd8d0; border-radius: 10px; padding: 16px 18px; }
+  .sig-card .field-label { margin-bottom: 4px; }
+  .sig-card input { width: 100%; border: none; border-bottom: 1.5px solid #e0ddd8; padding: 6px 0; font-family: inherit; font-size: 13px; color: var(--black); background: transparent; margin-bottom: 8px; }
+  .sig-card input:focus { outline: none; border-bottom-color: var(--orange); }
+
+  .footer-note { background: var(--black); color: #aaa; border-radius: 12px; padding: 20px 24px; margin-top: 32px; font-size: 13px; line-height: 1.6; }
+  .footer-note strong { color: white; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:#FF4713;text-transform:uppercase;margin-bottom:6px;">KiLROY Leadership Academy</div>
+    <h1>Team Charter</h1>
+    <div class="sub">A shared commitment to how we work, lead, and grow together.</div>
+  </div>
+  <div class="badge">Module 7 Template</div>
+</div>
+<div class="strip">Complete this charter with your team — make it yours, then hold each other to it.</div>
+
+<div class="content">
+
+  <!-- META -->
+  <div class="section">
+    <div class="meta-grid">
+      <div>
+        <div class="field-label">Team / Market</div>
+        <input class="field-input" placeholder="e.g. KILROY Sweden">
+      </div>
+      <div>
+        <div class="field-label">Team Lead / Manager</div>
+        <input class="field-input" placeholder="Name">
+      </div>
+      <div>
+        <div class="field-label">Date Agreed</div>
+        <input class="field-input" type="date">
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: PURPOSE -->
+  <div class="section">
+    <div class="section-num">Section 1</div>
+    <div class="section-title">Our Purpose</div>
+    <div class="section-desc">Why does this team exist? What do we ultimately serve? Your purpose statement should be ambitious enough to inspire, and specific enough to guide decisions.</div>
+    <div class="card">
+      <div class="field-label">Our team exists to:</div>
+      <textarea class="field-input" placeholder="Write your team purpose here — one or two sentences that everyone believes in." rows="3"></textarea>
+      <div style="margin-top:14px;">
+        <div class="field-label">The one thing we never compromise on:</div>
+        <input class="field-input" placeholder="e.g. Customer experience / response time / offer quality...">
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: COMMITMENTS -->
+  <div class="section">
+    <div class="section-num">Section 2</div>
+    <div class="section-title">Our Commitments to Each Other</div>
+    <div class="section-desc">These are the behaviours we commit to as a team — not rules imposed from outside, but promises we make to each other.</div>
+    <div class="card">
+      <div class="commitment-row">
+        <div class="commitment-num">01</div>
+        <div class="commitment-body">
+          <div class="commitment-title">We communicate openly and early.</div>
+          <div class="commitment-detail">We flag problems before they become crises. We don't let things fester.</div>
+        </div>
+      </div>
+      <div class="commitment-row">
+        <div class="commitment-num">02</div>
+        <div class="commitment-body">
+          <div class="commitment-title">We show up prepared.</div>
+          <div class="commitment-detail">Meetings have agendas. We read what needs to be read. We respect each other's time.</div>
+        </div>
+      </div>
+      <div class="commitment-row">
+        <div class="commitment-num">03</div>
+        <div class="commitment-body">
+          <div class="commitment-title">We follow up. Always.</div>
+          <div class="commitment-detail">A request answered quickly is better than a perfect answer delivered late.</div>
+        </div>
+      </div>
+      <div class="commitment-row">
+        <div class="commitment-num">04</div>
+        <div class="commitment-body">
+          <div class="commitment-title">We give feedback directly — and kindly.</div>
+          <div class="commitment-detail">We don't talk around the person. We address issues with the person involved, not about them.</div>
+        </div>
+      </div>
+      <div class="commitment-row">
+        <div class="commitment-num">05</div>
+        <div class="commitment-body">
+          <div class="commitment-title">We back each other in front of customers.</div>
+          <div class="commitment-detail">Disagreements stay internal. Outside, we are one team.</div>
+        </div>
+      </div>
+      <div class="commitment-row">
+        <div class="commitment-num">06</div>
+        <div class="commitment-body">
+          <div class="commitment-title">We celebrate wins — even the small ones.</div>
+          <div class="commitment-detail">Progress deserves recognition. We say well done when well done is earned.</div>
+        </div>
+      </div>
+      <div class="commitment-row">
+        <div class="commitment-num">07</div>
+        <div class="commitment-body">
+          <input class="field-input" placeholder="Add your own commitment — what matters most to your team?">
+        </div>
+      </div>
+      <div class="commitment-row">
+        <div class="commitment-num">08</div>
+        <div class="commitment-body">
+          <input class="field-input" placeholder="Add your own commitment">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: HOW WE WORK -->
+  <div class="section">
+    <div class="section-num">Section 3</div>
+    <div class="section-title">How We Work Day-to-Day</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="field-label">Team Meetings</div>
+        <div style="margin-bottom:8px;"><span style="font-size:12px;color:#aaa;">Frequency:</span><input class="field-input" placeholder="e.g. Weekly Monday 09:00" style="margin-top:4px;"></div>
+        <div><span style="font-size:12px;color:#aaa;">Format:</span><input class="field-input" placeholder="In-person / Teams / Hybrid" style="margin-top:4px;"></div>
+      </div>
+      <div class="card">
+        <div class="field-label">1-1 Check-ins</div>
+        <div style="margin-bottom:8px;"><span style="font-size:12px;color:#aaa;">Frequency:</span><input class="field-input" placeholder="e.g. Bi-weekly" style="margin-top:4px;"></div>
+        <div><span style="font-size:12px;color:#aaa;">What we cover:</span><input class="field-input" placeholder="Pipeline / wellbeing / development" style="margin-top:4px;"></div>
+      </div>
+      <div class="card">
+        <div class="field-label">How We Communicate</div>
+        <div style="margin-bottom:8px;"><span style="font-size:12px;color:#aaa;">Urgent matters:</span><input class="field-input" placeholder="e.g. Phone call / WhatsApp" style="margin-top:4px;"></div>
+        <div><span style="font-size:12px;color:#aaa;">Day-to-day:</span><input class="field-input" placeholder="e.g. Teams chat channel" style="margin-top:4px;"></div>
+      </div>
+      <div class="card">
+        <div class="field-label">How We Handle Disagreement</div>
+        <div style="margin-bottom:8px;"><span style="font-size:12px;color:#aaa;">First step:</span><input class="field-input" placeholder="Talk to each other directly — not around" style="margin-top:4px;"></div>
+        <div><span style="font-size:12px;color:#aaa;">If unresolved:</span><input class="field-input" placeholder="Bring to TL / manager within 48 hours" style="margin-top:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: PERFORMANCE TARGETS -->
+  <div class="section">
+    <div class="section-num">Section 4</div>
+    <div class="section-title">Our Performance Targets</div>
+    <div class="section-desc">What does success look like for our team this year? Set clear, honest targets that connect to your Salesforce dashboard.</div>
+    <div class="card">
+      <table class="kpi-table">
+        <thead>
+          <tr>
+            <th>KPI</th>
+            <th>Current</th>
+            <th>Our Target</th>
+            <th>By When</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Win Rate</td><td class="current">~25%</td><td><input placeholder="Target"></td><td><input placeholder="Date"></td></tr>
+          <tr><td>Offer Rate</td><td class="current">~47%</td><td><input placeholder="Target"></td><td><input placeholder="Date"></td></tr>
+          <tr><td>Hit Rate</td><td class="current">~59%</td><td><input placeholder="Target"></td><td><input placeholder="Date"></td></tr>
+          <tr><td>Unqualification Rate</td><td class="current">~35%</td><td><input placeholder="Target"></td><td><input placeholder="Date"></td></tr>
+          <tr><td>Overdue Tasks (team avg)</td><td class="current">—</td><td><input placeholder="Target"></td><td><input placeholder="Date"></td></tr>
+          <tr><td>Gross Profit / FTE</td><td class="current">—</td><td><input placeholder="Target"></td><td><input placeholder="Date"></td></tr>
+          <tr><td><input placeholder="Other KPI" style="border:none;padding:0;background:transparent;font-weight:600;"></td><td class="current">—</td><td><input placeholder="Target"></td><td><input placeholder="Date"></td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:11px;color:#bbb;margin-top:10px;font-style:italic;">The 'current' values above are KILROY averages from Salesforce as of early 2026 — replace with your market's actuals.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: LEARNING -->
+  <div class="section">
+    <div class="section-num">Section 5</div>
+    <div class="section-title">How We Grow — Learning & Development</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="field-label">As a team, we will learn by:</div>
+        <div style="font-size:13px;color:#666;line-height:1.7;margin-bottom:10px;">
+          ✓ Sharing one win or learning in our weekly meeting<br>
+          ✓ Reviewing our Salesforce dashboard together monthly<br>
+          ✓ Coaching each other on new product knowledge
+        </div>
+        <input class="field-input" placeholder="Add your own learning commitment...">
+      </div>
+      <div class="card">
+        <div class="field-label">My Personal Development Focus</div>
+        <div style="margin-bottom:8px;"><span style="font-size:12px;color:#aaa;">One skill I want to build:</span><input class="field-input" placeholder="" style="margin-top:4px;"></div>
+        <div style="margin-bottom:8px;"><span style="font-size:12px;color:#aaa;">How I will get there:</span><input class="field-input" placeholder="" style="margin-top:4px;"></div>
+        <div><span style="font-size:12px;color:#aaa;">Support I need:</span><input class="field-input" placeholder="" style="margin-top:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: REVIEW -->
+  <div class="section">
+    <div class="section-num">Section 6</div>
+    <div class="section-title">Charter Review & Accountability</div>
+    <div class="section-desc">A Team Charter is only useful if you come back to it. Schedule a review now.</div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+        <div>
+          <div class="field-label">First Review Date</div>
+          <input class="field-input" type="date">
+        </div>
+        <div>
+          <div class="field-label">Review Frequency</div>
+          <input class="field-input" placeholder="Quarterly / at each performance review">
+        </div>
+        <div>
+          <div class="field-label">Who Holds Us Accountable</div>
+          <input class="field-input" value="All of us — this is a shared commitment" style="font-style:italic;color:#888;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: SIGNATURES -->
+  <div class="section">
+    <div class="section-num">Section 7</div>
+    <div class="section-title">Our Commitment — Signatures</div>
+    <div class="section-desc">By signing below, each team member commits to the behaviours, targets, and ways of working agreed in this charter.</div>
+    <div class="sig-grid">
+      <div class="sig-card"><input placeholder="Name"><input placeholder="Role"><input placeholder="Date"></div>
+      <div class="sig-card"><input placeholder="Name"><input placeholder="Role"><input placeholder="Date"></div>
+      <div class="sig-card"><input placeholder="Name"><input placeholder="Role"><input placeholder="Date"></div>
+      <div class="sig-card"><input placeholder="Name"><input placeholder="Role"><input placeholder="Date"></div>
+      <div class="sig-card"><input placeholder="Name"><input placeholder="Role"><input placeholder="Date"></div>
+      <div class="sig-card"><input placeholder="Name"><input placeholder="Role"><input placeholder="Date"></div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <strong>This charter is a living document.</strong> Revisit it when the team changes, when targets shift, or when something isn't working. The goal is not perfection on day one — it's the habit of being intentional about how you lead.
+  </div>
+</div>
+
+</body>
+</html>

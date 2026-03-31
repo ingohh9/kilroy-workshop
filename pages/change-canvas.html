@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILROY — Change Management Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --orange: #FF4713; --black: #1a1a1a; --bg: #fafaf8; --card: white; --border: #ebe9e4; --muted: #888; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--black); min-height: 100vh; }
+
+  .header { background: var(--black); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 22px; font-weight: 800; color: white; }
+  .header .sub { font-size: 12px; color: #666; margin-top: 3px; }
+  .header .badge { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); border: 1.5px solid var(--orange); padding: 5px 14px; border-radius: 3px; }
+
+  .strip { background: var(--orange); padding: 10px 40px; font-size: 12px; font-weight: 600; color: white; }
+
+  .content { max-width: 960px; margin: 0 auto; padding: 28px 32px 80px; }
+
+  .section-title { font-size: 18px; font-weight: 800; color: var(--black); margin-bottom: 4px; }
+  .section-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 12px; }
+
+  .field-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px; }
+  .field-input { width: 100%; border: 1.5px solid #e8e5e0; border-radius: 8px; padding: 10px 14px; font-family: inherit; font-size: 14px; color: var(--black); background: #fafaf8; resize: vertical; transition: border-color 0.2s, box-shadow 0.2s; }
+  .field-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,71,19,.08); }
+  .field-input::placeholder { color: #ccc; }
+  textarea.field-input { min-height: 60px; }
+
+  /* ADKAR reference */
+  .adkar-ref { display: flex; gap: 0; margin-bottom: 28px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .adkar-step { flex: 1; padding: 16px 14px; text-align: center; background: white; border-right: 1px solid var(--border); }
+  .adkar-step:last-child { border-right: none; }
+  .adkar-letter { font-size: 28px; font-weight: 800; color: var(--orange); line-height: 1; margin-bottom: 4px; }
+  .adkar-word { font-size: 12px; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+  .adkar-desc { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+  /* Canvas grid */
+  .canvas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .canvas-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; position: relative; overflow: hidden; }
+  .canvas-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--orange); }
+  .canvas-card.full { grid-column: 1 / -1; }
+  .canvas-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 8px; }
+  .canvas-title { font-size: 15px; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+  .canvas-hint { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+
+  /* Resistance table */
+  .resist-table { width: 100%; border-collapse: collapse; }
+  .resist-table th { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; text-align: left; padding: 8px 8px; border-bottom: 2px solid var(--border); }
+  .resist-table td { padding: 6px 8px; border-bottom: 1px solid #f0ede8; }
+  .resist-table input { width: 100%; border: 1.5px solid #e8e5e0; border-radius: 6px; padding: 7px 10px; font-family: inherit; font-size: 12px; color: var(--black); background: #fafaf8; }
+  .resist-table input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(255,71,19,.08); }
+  .resist-table input::placeholder { color: #ccc; }
+
+  /* Stakeholder grid */
+  .stake-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .stake-cell { padding: 16px 18px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .stake-cell:nth-child(2n) { border-right: none; }
+  .stake-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .stake-emoji { font-size: 16px; margin-bottom: 4px; }
+  .stake-label { font-size: 12px; font-weight: 700; color: var(--black); margin-bottom: 2px; }
+  .stake-desc { font-size: 11px; color: var(--muted); margin-bottom: 8px; line-height: 1.4; }
+  .stake-cell input { width: 100%; border: none; border-bottom: 1.5px solid #e8e5e0; padding: 4px 0; font-family: inherit; font-size: 12px; color: var(--black); background: transparent; }
+  .stake-cell input:focus { outline: none; border-bottom-color: var(--orange); }
+
+  /* Timeline */
+  .timeline-table { width: 100%; border-collapse: collapse; }
+  .timeline-table th { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 8px 8px; border-bottom: 2px solid var(--border); }
+  .timeline-table td { padding: 10px 8px; border-bottom: 1px solid #f0ede8; vertical-align: top; }
+  .timeline-table .phase { font-size: 13px; font-weight: 700; color: var(--orange); }
+  .timeline-table .timing { font-size: 12px; color: var(--muted); }
+  .timeline-table textarea { width: 100%; border: 1.5px solid #e8e5e0; border-radius: 6px; padding: 7px 10px; font-family: inherit; font-size: 12px; color: var(--black); background: #fafaf8; min-height: 40px; resize: vertical; }
+  .timeline-table textarea:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(255,71,19,.08); }
+  .status-select { border: 1.5px solid #e8e5e0; border-radius: 6px; padding: 6px 10px; font-family: inherit; font-size: 12px; color: var(--muted); background: #fafaf8; cursor: pointer; }
+  .status-select:focus { outline: none; border-color: var(--orange); }
+
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .meta-grid.two { grid-template-columns: 1fr 1fr; }
+  .change-sentence { background: var(--black); border-radius: 12px; padding: 20px 24px; margin-bottom: 12px; }
+  .change-sentence .label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; }
+  .change-sentence input { width: 100%; border: none; border-bottom: 2px solid #333; padding: 8px 0; font-family: inherit; font-size: 15px; color: white; background: transparent; }
+  .change-sentence input::placeholder { color: #555; }
+  .change-sentence input:focus { outline: none; border-bottom-color: var(--orange); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:3px;color:#FF4713;text-transform:uppercase;margin-bottom:6px;">KiLROY Leadership Academy</div>
+    <h1>Change Management Canvas</h1>
+    <div class="sub">Plan your change. Lead it with confidence.</div>
+  </div>
+  <div class="badge">Module 8 Template</div>
+</div>
+<div class="strip">Use this canvas to plan one change initiative through the ADKAR lens. Be specific — vague plans don't get implemented.</div>
+
+<div class="content">
+
+  <!-- META -->
+  <div class="meta-grid" style="margin-bottom:24px;">
+    <div><div class="field-label">Name</div><input class="field-input" placeholder="Your name"></div>
+    <div><div class="field-label">Market</div><input class="field-input" placeholder="Your market"></div>
+    <div><div class="field-label">Date</div><input class="field-input" type="date"></div>
+  </div>
+
+  <!-- ADKAR REFERENCE -->
+  <div class="adkar-ref">
+    <div class="adkar-step"><div class="adkar-letter">A</div><div class="adkar-word">Awareness</div><div class="adkar-desc">Why change is needed</div></div>
+    <div class="adkar-step"><div class="adkar-letter">D</div><div class="adkar-word">Desire</div><div class="adkar-desc">Want to support the change</div></div>
+    <div class="adkar-step"><div class="adkar-letter">K</div><div class="adkar-word">Knowledge</div><div class="adkar-desc">Know how to change</div></div>
+    <div class="adkar-step"><div class="adkar-letter">A</div><div class="adkar-word">Ability</div><div class="adkar-desc">Able to implement new skills</div></div>
+    <div class="adkar-step"><div class="adkar-letter">R</div><div class="adkar-word">Reinforcement</div><div class="adkar-desc">Sustain the change</div></div>
+  </div>
+
+  <!-- CANVAS QUADRANTS -->
+  <div class="canvas-grid">
+    <div class="canvas-card">
+      <div class="canvas-eyebrow">① Awareness</div>
+      <div class="canvas-title">The Burning Platform</div>
+      <div class="canvas-hint">What is the problem / opportunity forcing this change? Why now? What happens if we don't?</div>
+      <textarea class="field-input" rows="4" placeholder="Describe the urgency..."></textarea>
+    </div>
+    <div class="canvas-card">
+      <div class="canvas-eyebrow">② Desire</div>
+      <div class="canvas-title">Who Is On Board?</div>
+      <div class="canvas-hint">Who supports this? Who is neutral? Who are your first followers? List names if you can.</div>
+      <textarea class="field-input" rows="4" placeholder="Champions, supporters, skeptics..."></textarea>
+    </div>
+    <div class="canvas-card">
+      <div class="canvas-eyebrow">③ Knowledge</div>
+      <div class="canvas-title">The Training Plan</div>
+      <div class="canvas-hint">What skills, processes or information do people need? How will you deliver it?</div>
+      <textarea class="field-input" rows="4" placeholder="Skills, tools, documentation needed..."></textarea>
+    </div>
+    <div class="canvas-card">
+      <div class="canvas-eyebrow">④ Ability + ⑤ Reinforcement</div>
+      <div class="canvas-title">Make It Stick</div>
+      <div class="canvas-hint">How will you know the change is working? What will you do to reinforce new behaviours?</div>
+      <textarea class="field-input" rows="4" placeholder="Metrics, celebrations, accountability..."></textarea>
+    </div>
+  </div>
+
+  <!-- CHANGE SENTENCE -->
+  <div class="change-sentence">
+    <div class="label">The Change in One Sentence</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:15px;color:#888;">
+      <span>We are changing</span>
+      <input placeholder="what" style="flex:1;min-width:120px;">
+      <span>from</span>
+      <input placeholder="old way" style="flex:1;min-width:120px;">
+      <span>to</span>
+      <input placeholder="new way" style="flex:1;min-width:120px;">
+      <span>because</span>
+      <input placeholder="why" style="flex:1.5;min-width:160px;">
+    </div>
+  </div>
+
+  <!-- TARGET & SUCCESS -->
+  <div class="meta-grid two" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="field-label">Target Date for Full Adoption</div>
+      <input class="field-input" type="date">
+    </div>
+    <div class="card">
+      <div class="field-label">What Does Success Look Like?</div>
+      <textarea class="field-input" placeholder="Describe the future state in concrete terms..." rows="2"></textarea>
+    </div>
+  </div>
+
+  <!-- RESISTANCE MAPPING -->
+  <div style="margin-bottom:24px;">
+    <div class="section-title">Resistance Mapping</div>
+    <div class="section-desc">Anticipate it. Address it before it derails you.</div>
+    <div class="card">
+      <table class="resist-table">
+        <thead>
+          <tr><th>Who might resist?</th><th>Why? (their concern)</th><th>My response</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input placeholder="e.g. Sarah on the team"></td>
+            <td><input placeholder="Feels her experience is ignored"></td>
+            <td><input placeholder="1-1 conversation before launch"></td>
+          </tr>
+          <tr><td><input placeholder="Name/role"></td><td><input placeholder="Their concern"></td><td><input placeholder="Your plan"></td></tr>
+          <tr><td><input placeholder="Name/role"></td><td><input placeholder="Their concern"></td><td><input placeholder="Your plan"></td></tr>
+          <tr><td><input placeholder="Name/role"></td><td><input placeholder="Their concern"></td><td><input placeholder="Your plan"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FIRST FOLLOWER -->
+  <div class="card" style="margin-bottom:24px;">
+    <div class="canvas-eyebrow">First Follower Strategy</div>
+    <div class="canvas-hint">The first follower validates your idea publicly and makes others feel safe to join.</div>
+    <div class="meta-grid two">
+      <div><div class="field-label">Who is your first follower?</div><input class="field-input" placeholder="Name"></div>
+      <div><div class="field-label">How will you bring them in early?</div><input class="field-input" placeholder="Your approach"></div>
+    </div>
+  </div>
+
+  <!-- STAKEHOLDER MAP -->
+  <div style="margin-bottom:24px;">
+    <div class="section-title">Stakeholder Map</div>
+    <div class="section-desc" style="margin-bottom:8px;">Map your stakeholders by influence and position.</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:0;">
+      <div style="writing-mode:vertical-rl;text-align:center;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ccc;padding:0 8px;display:flex;align-items:center;">High influence ↑ Low</div>
+      <div class="stake-grid">
+        <div class="stake-cell" style="background:#fff8f5;">
+          <div class="stake-emoji">🌟</div>
+          <div class="stake-label">Champion</div>
+          <div class="stake-desc">FOR change + high influence. Engage early. Make them visible advocates.</div>
+          <input placeholder="Names...">
+        </div>
+        <div class="stake-cell" style="background:#fff5f5;">
+          <div class="stake-emoji">⚠️</div>
+          <div class="stake-label">Blocker</div>
+          <div class="stake-desc">AGAINST change + high influence. Address 1-1. Understand their concern first.</div>
+          <input placeholder="Names...">
+        </div>
+        <div class="stake-cell">
+          <div class="stake-emoji">👍</div>
+          <div class="stake-label">Supporter</div>
+          <div class="stake-desc">FOR change + low influence. Keep informed. They add social proof.</div>
+          <input placeholder="Names...">
+        </div>
+        <div class="stake-cell">
+          <div class="stake-emoji">👀</div>
+          <div class="stake-label">Neutral / Watcher</div>
+          <div class="stake-desc">Undecided or low influence. Win them over early before blockers do.</div>
+          <input placeholder="Names...">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPLEMENTATION TIMELINE -->
+  <div style="margin-bottom:24px;">
+    <div class="section-title">Implementation Timeline</div>
+    <div class="section-desc">Map your key milestones. Who does what, and by when?</div>
+    <div class="card">
+      <table class="timeline-table">
+        <thead>
+          <tr><th>Phase</th><th>Timing</th><th>Key Actions / Milestones</th><th>Owner</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="phase">Prepare</div></td>
+            <td><div class="timing">Week 1–2</div></td>
+            <td><textarea placeholder="Define the change. Build your coalition. Have 1-1s with champions and blockers."></textarea></td>
+            <td><input class="field-input" style="padding:6px 10px;font-size:12px;" placeholder="Owner"></td>
+            <td><select class="status-select"><option>Not started</option><option>In progress</option><option>Done</option></select></td>
+          </tr>
+          <tr>
+            <td><div class="phase">Communicate</div></td>
+            <td><div class="timing">Week 2–3</div></td>
+            <td><textarea placeholder="Announce to team. Explain the WHY clearly. Invite questions."></textarea></td>
+            <td><input class="field-input" style="padding:6px 10px;font-size:12px;" placeholder="Owner"></td>
+            <td><select class="status-select"><option>Not started</option><option>In progress</option><option>Done</option></select></td>
+          </tr>
+          <tr>
+            <td><div class="phase">Train</div></td>
+            <td><div class="timing">Week 3–5</div></td>
+            <td><textarea placeholder="Deliver training, process updates, or documentation for the new way."></textarea></td>
+            <td><input class="field-input" style="padding:6px 10px;font-size:12px;" placeholder="Owner"></td>
+            <td><select class="status-select"><option>Not started</option><option>In progress</option><option>Done</option></select></td>
+          </tr>
+          <tr>
+            <td><div class="phase">Implement</div></td>
+            <td><div class="timing">Week 5+</div></td>
+            <td><textarea placeholder="New behaviour begins. Monitor. Coach. Catch people doing it right."></textarea></td>
+            <td><input class="field-input" style="padding:6px 10px;font-size:12px;" placeholder="Owner"></td>
+            <td><select class="status-select"><option>Not started</option><option>In progress</option><option>Done</option></select></td>
+          </tr>
+          <tr>
+            <td><div class="phase">Reinforce</div></td>
+            <td><div class="timing">Ongoing</div></td>
+            <td><textarea placeholder="Celebrate early wins. Address backsliding. Make the new way the default."></textarea></td>
+            <td><input class="field-input" style="padding:6px 10px;font-size:12px;" placeholder="Owner"></td>
+            <td><select class="status-select"><option>Not started</option><option>In progress</option><option>Done</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

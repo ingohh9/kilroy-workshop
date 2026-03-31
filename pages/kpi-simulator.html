@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPI Funnel Simulator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f3ef; min-height: 100vh; }
+  input[type=range] { -webkit-appearance: none; appearance: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; border: 4px solid white; box-shadow: 0 2px 8px rgba(0,0,0,.3); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; border: 4px solid white; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const BENCH = { leads: 1000, offerRate: 60, hitRate: 41.67, confirmed: 250, winRate: 25 };
+
+function useAnim(target) {
+  const [val, setVal] = useState(target);
+  const prev = useRef(target);
+  const frame = useRef(null);
+  useEffect(() => {
+    const from = prev.current, to = target, t0 = performance.now();
+    const run = (now) => {
+      const t = Math.min((now - t0) / 380, 1);
+      const e = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      setVal(from + (to - from) * e);
+      if (t < 1) frame.current = requestAnimationFrame(run);
+      else prev.current = to;
+    };
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(run);
+    return () => cancelAnimationFrame(frame.current);
+  }, [target]);
+  return val;
+}
+
+function N({ v, d=0, s="" }) {
+  const a = useAnim(v);
+  return <span>{a.toFixed(d)}{s}</span>;
+}
+
+function Slider({ label, value, min, max, step, onChange, color, benchPct }) {
+  const pct = ((value-min)/(max-min))*100;
+  return (
+    <div style={{marginBottom:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
+        <span style={{fontSize:10,fontWeight:700,letterSpacing:2,color:"#999",textTransform:"uppercase"}}>{label}</span>
+        <span style={{fontSize:24,fontWeight:900,color,lineHeight:1}}><N v={value} d={label==="HIT RATE"?2:0} s="%"/></span>
+      </div>
+      <div style={{position:"relative",height:10,borderRadius:5,background:"#e8e8e8"}}>
+        <div style={{position:"absolute",left:`${benchPct}%`,top:"50%",transform:"translate(-50%,-50%)",width:3,height:20,background:"#ff4713",borderRadius:2,zIndex:2,opacity:.6}}/>
+        <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${pct}%`,background:color,borderRadius:5}}/>
+        <input type="range" min={min} max={max} step={step} value={value} onChange={e=>onChange(+e.target.value)}
+          style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:3,margin:0}}/>
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:"#ccc",marginTop:2}}>
+        <span>{min}%</span><span style={{color:"#ff4713",fontWeight:700}}>▲ bench</span><span>{max}%</span>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [leads, setLeads] = useState(890);
+  const [or, setOr] = useState(60);
+  const [hr, setHr] = useState(41.67);
+
+  const offers = leads * or/100;
+  const conf = offers * hr/100;
+  const wr = (conf/leads)*100;
+  const gap = conf - BENCH.confirmed;
+  const idx = (leads/BENCH.leads)*100;
+  const missing = gap < -0.5;
+  const onTarget = Math.abs(gap) < 0.5;
+  const prog = Math.min((conf/BENCH.confirmed)*100, 100);
+  const sc = onTarget ? "#22c55e" : missing ? "#ff4713" : "#22c55e";
+  const idxC = idx>=100?"#16a34a":idx>=85?"#d97706":"#dc2626";
+  const idxBg = idx>=100?"#dcfce7":idx>=85?"#fef3c7":"#fee2e2";
+
+  const reqWR = (BENCH.confirmed/leads)*100;
+  const reqOR = Math.min((BENCH.confirmed/(leads*hr/100))*100,100);
+  const reqHR = Math.min((BENCH.confirmed/(leads*or/100))*100,100);
+
+  const card = {background:"white",borderRadius:14,padding:"18px 18px",boxShadow:"0 1px 6px rgba(0,0,0,.07)"};
+
+  return (
+    <div>
+      {/* HEADER */}
+      <div style={{background:"#1a1a1a",padding:"14px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div>
+          <div style={{fontSize:9,letterSpacing:3,color:"#ff4713",fontWeight:700,textTransform:"uppercase",marginBottom:3}}>KiLROY Leadership Academy · Business Success</div>
+          <div style={{fontSize:18,fontWeight:900,color:"white",letterSpacing:-.3}}>KPI FUNNEL SIMULATOR</div>
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:9,color:"#555",letterSpacing:2,textTransform:"uppercase"}}>Sales Target</div>
+          <div style={{fontSize:30,fontWeight:900,color:"#ff4713",lineHeight:1}}>250</div>
+          <div style={{fontSize:9,color:"#555"}}>confirmed bookings</div>
+        </div>
+      </div>
+
+      {/* BENCHMARK STRIP */}
+      <div style={{background:"#ff4713",padding:"7px 20px",display:"flex",gap:20,flexWrap:"wrap",alignItems:"center"}}>
+        {[["Bench Leads","1,000"],["Offer Rate","60%"],["Hit Rate","41.67%"],["Win Rate","25%"],["Target","250 sales"]].map(([l,v])=>(
+          <div key={l} style={{display:"flex",gap:6,alignItems:"center"}}>
+            <span style={{fontSize:9,color:"rgba(255,255,255,.65)",letterSpacing:1.5,textTransform:"uppercase"}}>{l}</span>
+            <span style={{fontSize:12,fontWeight:800,color:"white"}}>{v}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* 3-COL LAYOUT */}
+      <div style={{display:"grid",gridTemplateColumns:"250px 1fr 250px",gap:12,padding:"14px 14px",maxWidth:980,margin:"0 auto"}}>
+
+        {/* LEFT */}
+        <div style={card}>
+          <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:"#bbb",textTransform:"uppercase",marginBottom:14}}>Your Scenario</div>
+
+          {/* Lead volume */}
+          <div style={{background:"#f9f8f5",borderRadius:10,padding:"12px 14px",marginBottom:18}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+              <span style={{fontSize:9,fontWeight:700,letterSpacing:2,color:"#999",textTransform:"uppercase"}}>Lead Volume</span>
+              <span style={{fontSize:10,fontWeight:800,color:idxC,background:idxBg,padding:"2px 10px",borderRadius:20}}>INDEX <N v={idx} d={0}/></span>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
+              <span style={{fontSize:10,color:"#aaa"}}>Incoming leads</span>
+              <span style={{fontSize:26,fontWeight:900,color:"#1a1a1a",lineHeight:1}}><N v={leads}/></span>
+            </div>
+            <div style={{position:"relative",height:10,borderRadius:5,background:"#e5e5e5"}}>
+              <div style={{position:"absolute",left:`${(500/600)*100}%`,top:"50%",transform:"translate(-50%,-50%)",width:3,height:20,background:"#ff4713",borderRadius:2,zIndex:2,opacity:.6}}/>
+              <div style={{width:`${Math.min((leads-500)/600*100,100)}%`,height:"100%",borderRadius:5,background:idx>=100?"#22c55e":idx>=85?"#f59e0b":"#ff4713",transition:"width .1s"}}/>
+              <input type="range" min={500} max={1100} step={10} value={leads} onChange={e=>setLeads(+e.target.value)}
+                style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0,cursor:"pointer",zIndex:3,margin:0}}/>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:"#ccc",marginTop:2}}>
+              <span>500</span><span style={{color:"#ff4713",fontWeight:700}}>▲ 1,000</span><span>1,100</span>
+            </div>
+          </div>
+
+          <Slider label="Offer Rate" value={or} min={20} max={100} step={0.5} onChange={setOr} color="#ff4713" benchPct={(60-20)/80*100}/>
+          <Slider label="Hit Rate" value={hr} min={10} max={90} step={0.1} onChange={setHr} color="#1a1a1a" benchPct={(41.67-10)/80*100}/>
+
+          <button onClick={()=>{setLeads(890);setOr(60);setHr(41.67);}}
+            style={{width:"100%",padding:"9px",background:"transparent",border:"2px solid #e5e5e5",borderRadius:8,cursor:"pointer",fontSize:10,fontWeight:700,letterSpacing:2,color:"#999",textTransform:"uppercase",marginBottom:8}}>
+            ↺  Reset (890 leads)
+          </button>
+          <button onClick={()=>{setLeads(1000);setOr(60);setHr(41.67);}}
+            style={{width:"100%",padding:"9px",background:"#1a1a1a",border:"none",borderRadius:8,cursor:"pointer",fontSize:10,fontWeight:700,letterSpacing:2,color:"white",textTransform:"uppercase"}}>
+            ★  Show Benchmark
+          </button>
+        </div>
+
+        {/* CENTER */}
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+
+          {/* Funnel */}
+          <div style={card}>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:"#bbb",textTransform:"uppercase",marginBottom:14}}>The Sales Funnel</div>
+            {[
+              {label:"LEADS",val:leads,max:1000,color:"#1a1a1a",rate:null},
+              {label:"OFFERS SENT",val:offers,max:1000,color:"#ff4713",rate:`× ${(or/100).toFixed(2)}  offer rate`},
+              {label:"CONFIRMED",val:conf,max:250,color:missing?"#dc2626":"#22c55e",rate:`× ${(hr/100).toFixed(4)}  hit rate`},
+            ].map((row,i)=>{
+              const w = Math.min(row.val/row.max,1.08)*100;
+              return (
+                <div key={row.label}>
+                  {row.rate&&(
+                    <div style={{display:"flex",alignItems:"center",gap:8,margin:"4px 0"}}>
+                      <div style={{flex:1,borderTop:"2px dashed #e8e8e8"}}/>
+                      <span style={{fontSize:9,fontWeight:700,color:i===1?"#ff4713":"#888",whiteSpace:"nowrap"}}>{row.rate}</span>
+                      <div style={{flex:1,borderTop:"2px dashed #e8e8e8"}}/>
+                    </div>
+                  )}
+                  <div style={{height:i===2?52:42,background:"#f5f5f5",borderRadius:6,overflow:"hidden",position:"relative",marginBottom:2}}>
+                    <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${w}%`,background:row.color,borderRadius:6,transition:"width .35s cubic-bezier(.34,1.56,.64,1)",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 14px",minWidth:80}}>
+                      <span style={{fontSize:9,fontWeight:700,color:"rgba(255,255,255,.7)",letterSpacing:1.5,textTransform:"uppercase"}}>{row.label}</span>
+                      <span style={{fontSize:i===2?22:18,fontWeight:900,color:"white"}}><N v={Math.round(row.val)}/></span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Equation */}
+          <div style={{...card,background:"#1a1a1a"}}>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,color:"#555",textTransform:"uppercase",marginBottom:10}}>Win Rate = Offer Rate × Hit Rate ÷ 100</div>
+            <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:9,color:"rgba(255,71,19,.7)",letterSpacing:1,textTransform:"uppercase"}}>Offer Rate</div>
+                <div style={{fontSize:24,fontWeight:900,color:"#ff4713",lineHeight:1}}><N v={or} d={0} s="%"/></div>
+              </div>
+              <span style={{fontSize:18,color:"#444",fontWeight:700}}>×</span>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:9,color:"rgba(255,255,255,.5)",letterSpacing:1,textTransform:"uppercase"}}>Hit Rate</div>
+                <div style={{fontSize:24,fontWeight:900,color:"white",lineHeight:1}}><N v={hr} d={2} s="%"/></div>
+              </div>
+              <span style={{fontSize:18,color:"#444",fontWeight:700}}>÷ 100 =</span>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:9,color:wr>=25?"rgba(74,222,128,.7)":"rgba(248,113,113,.7)",letterSpacing:1,textTransform:"uppercase"}}>Win Rate</div>
+                <div style={{fontSize:28,fontWeight:900,color:wr>=25?"#4ade80":"#f87171",lineHeight:1}}><N v={wr} d={1} s="%"/></div>
+              </div>
+              <div style={{marginLeft:"auto",textAlign:"right"}}>
+                <div style={{fontSize:9,color:"#555"}}>benchmark</div>
+                <div style={{fontSize:15,fontWeight:700,color:"#444"}}>25.0%</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4 delta badges */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8}}>
+            {[
+              {l:"Leads",v:leads,b:1000,d:0,s:""},
+              {l:"Offer Rate",v:or,b:60,d:0,s:"%"},
+              {l:"Hit Rate",v:hr,b:41.67,d:2,s:"%"},
+              {l:"Win Rate",v:wr,b:25,d:1,s:"%"},
+            ].map(k=>{
+              const delta=k.v-k.b, up=delta>=0;
+              return (
+                <div key={k.l} style={{...card,padding:"10px 10px",textAlign:"center"}}>
+                  <div style={{fontSize:8,fontWeight:700,letterSpacing:2,color:"#bbb",textTransform:"uppercase",marginBottom:3}}>{k.l}</div>
+                  <div style={{fontSize:16,fontWeight:900,color:"#1a1a1a",lineHeight:1}}><N v={k.v} d={k.d} s={k.s}/></div>
+                  <div style={{fontSize:9,marginTop:3,fontWeight:700,color:up?"#16a34a":"#dc2626"}}>
+                    {up?"▲":"▼"} {Math.abs(delta).toFixed(k.d)}{k.s}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+
+          {/* Big result */}
+          <div style={{...card,border:`3px solid ${sc}`,textAlign:"center"}}>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2.5,color:"#bbb",textTransform:"uppercase",marginBottom:8}}>Confirmed Bookings</div>
+            <div style={{fontSize:60,fontWeight:900,color:sc,lineHeight:1}}><N v={Math.round(conf)}/></div>
+            <div style={{fontSize:11,color:"#888",marginBottom:12,marginTop:4}}>
+              {onTarget?"✓ Exactly on target":missing?`${Math.abs(Math.round(gap))} below target of 250`:`${Math.round(gap)} above target`}
+            </div>
+            <div style={{height:10,background:"#f0f0f0",borderRadius:5,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${prog}%`,background:sc,borderRadius:5,transition:"width .3s"}}/>
+            </div>
+            <div style={{fontSize:11,fontWeight:700,color:sc,marginTop:4,textAlign:"right"}}><N v={prog} d={0} s="%"/></div>
+          </div>
+
+          {/* Missing: show options */}
+          {missing&&(
+            <div style={{...card,flex:1}}>
+              <div style={{fontSize:9,fontWeight:800,letterSpacing:2,color:"#ff4713",textTransform:"uppercase",marginBottom:12}}>
+                To reach 250 with {leads} leads:
+              </div>
+              {[
+                {tag:"A",title:"Lift Win Rate",main:`Win rate → ${reqWR.toFixed(1)}%`,sub:`Now ${wr.toFixed(1)}% · +${(reqWR-wr).toFixed(1)}pp needed`,note:"via any OR + HR combo"},
+                {tag:"B",title:"Send More Offers",main:`Offer rate → ${reqOR.toFixed(1)}%`,sub:`Now ${or.toFixed(0)}% · +${(reqOR-or).toFixed(1)}pp needed`,note:`keep hit rate at ${hr.toFixed(2)}%`},
+                {tag:"C",title:"Close More Offers",main:`Hit rate → ${reqHR.toFixed(1)}%`,sub:`Now ${hr.toFixed(2)}% · +${(reqHR-hr).toFixed(1)}pp needed`,note:`keep offer rate at ${or.toFixed(0)}%`},
+              ].map(o=>(
+                <div key={o.tag} style={{display:"flex",gap:10,padding:"10px 11px",background:"#f9f8f5",borderRadius:10,marginBottom:8,alignItems:"flex-start"}}>
+                  <div style={{width:22,height:22,borderRadius:"50%",background:"#ff4713",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+                    <span style={{fontSize:10,fontWeight:900,color:"white"}}>{o.tag}</span>
+                  </div>
+                  <div>
+                    <div style={{fontSize:11,fontWeight:700,color:"#1a1a1a"}}>{o.title}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:"#ff4713",marginTop:1}}>{o.main}</div>
+                    <div style={{fontSize:9,color:"#aaa",marginTop:1}}>{o.sub}</div>
+                    <div style={{fontSize:9,color:"#ccc"}}>{o.note}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!missing&&(
+            <div style={{...card,borderLeft:`4px solid ${sc}`}}>
+              <div style={{fontSize:11,fontWeight:700,color:sc,marginBottom:6}}>
+                {onTarget?"✓ Perfectly calibrated":"🎯 Target exceeded!"}
+              </div>
+              <div style={{fontSize:11,color:"#666",lineHeight:1.55}}>
+                {onTarget
+                  ?"Your offer rate and hit rate exactly compensate for the lead gap."
+                  :`Win rate of ${wr.toFixed(1)}% more than covers the shortfall. Buffer: +${Math.round(gap)} bookings.`}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+</body>
+</html>

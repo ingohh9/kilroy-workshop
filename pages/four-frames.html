@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILROY — The 4-Frame Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange:     #FF4713;
+  --black:      #0D0D0D;
+  --offwhite:   #F5F3EE;
+  --mid:        #888;
+
+  /* Frame colours */
+  --structural: #1B2D4F;   /* deep navy */
+  --hr:         #8B4513;   /* rich saddle brown */
+  --political:  #6B0F1A;   /* deep crimson */
+  --symbolic:   #0F4C3A;   /* deep forest */
+
+  --structural-light: #D6E2F5;
+  --hr-light:         #F5DFC8;
+  --political-light:  #F5D0D5;
+  --symbolic-light:   #C8E8DC;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--black);
+  color: white;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ── SCREENS ── */
+.screen { 
+  display: none; 
+  width: 100vw; height: 100vh;
+  flex-direction: column;
+  position: absolute; inset: 0;
+}
+.screen.active { display: flex; }
+
+/* ── NAV BAR ── */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 32px;
+  background: rgba(13,13,13,0.95);
+  border-top: 1px solid #1a1a1a;
+  backdrop-filter: blur(10px);
+}
+.nav-left { display: flex; align-items: center; gap: 10px; }
+.kilroy-tag {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700; font-size: 14px;
+  color: var(--orange); letter-spacing: -0.3px;
+}
+.nav-module { font-size: 12px; color: #555; }
+.nav-center { display: flex; gap: 6px; align-items: center; }
+.nav-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #2a2a2a; transition: all 0.3s; cursor: pointer;
+}
+.nav-dot.active { background: var(--orange); transform: scale(1.3); }
+.nav-dot.visited { background: #444; }
+.nav-right { display: flex; gap: 8px; }
+.nav-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700; font-size: 13px;
+  padding: 8px 20px; border-radius: 4px;
+  cursor: pointer; border: none;
+  transition: all 0.18s; letter-spacing: 0.3px;
+}
+.nav-btn-prev { background: #1a1a1a; color: #666; }
+.nav-btn-prev:hover { color: white; background: #2a2a2a; }
+.nav-btn-next { background: var(--orange); color: white; }
+.nav-btn-next:hover { background: #e03d0f; }
+.nav-btn:disabled { opacity: 0.2; cursor: default; }
+
+/* ── SCREEN 0: HOOK ── */
+#s0 {
+  background: var(--black);
+  justify-content: center; align-items: center;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+#s0::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: 
+    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(27,45,79,0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 40%, rgba(107,15,26,0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 80%, rgba(15,76,58,0.35) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hook-wrap { position: relative; z-index: 1; max-width: 820px; padding: 40px; }
+.hook-eyebrow {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 24px;
+  animation: fadeUp 0.6s ease both;
+}
+.hook-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(42px, 6vw, 78px);
+  line-height: 1.05;
+  margin-bottom: 24px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.hook-headline em { color: var(--orange); font-style: normal; }
+.hook-sub {
+  font-size: 18px; font-weight: 300; color: #888;
+  line-height: 1.65; max-width: 580px; margin: 0 auto 40px;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+.hook-frames {
+  display: flex; gap: 10px; justify-content: center;
+  animation: fadeUp 0.6s 0.3s ease both;
+}
+.hook-frame-pill {
+  padding: 8px 20px; border-radius: 4px;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ── SCREEN 1: OVERVIEW 2×2 ── */
+#s1 {
+  background: var(--offwhite);
+  color: var(--black);
+  padding: 0 0 56px 0;
+}
+.overview-header {
+  background: var(--black);
+  padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--orange);
+  flex-shrink: 0;
+}
+.overview-header h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px; color: white;
+}
+.overview-header p { font-size: 13px; color: #888; margin-top: 3px; }
+.overview-badge {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--orange); border: 1.5px solid var(--orange);
+  padding: 5px 14px; border-radius: 3px;
+}
+.quadrant-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  flex: 1;
+  gap: 3px;
+  padding: 3px;
+  background: #ddd;
+}
+.q-cell {
+  padding: 28px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.q-cell::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 0.2s;
+  background: rgba(255,255,255,0.06);
+}
+.q-cell:hover::before { opacity: 1; }
+.q-cell:hover { transform: scale(1.005); z-index: 2; }
+
+.q-structural { background: var(--structural); }
+.q-hr         { background: var(--hr); }
+.q-political  { background: var(--political); }
+.q-symbolic   { background: var(--symbolic); }
+
+.q-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 52px; font-weight: 400;
+  opacity: 0.15; position: absolute;
+  bottom: 16px; right: 24px;
+  line-height: 1;
+}
+.q-icon { font-size: 32px; margin-bottom: 12px; }
+.q-eyebrow {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,0.5); margin-bottom: 8px;
+}
+.q-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px; color: white;
+  line-height: 1.1; margin-bottom: 10px;
+}
+.q-tagline { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.5; max-width: 320px; }
+.q-question {
+  margin-top: 14px;
+  display: inline-block;
+  font-size: 13px; font-weight: 600;
+  color: white;
+  border-bottom: 2px solid rgba(255,255,255,0.4);
+  padding-bottom: 2px;
+}
+.q-click-hint {
+  font-size: 11px; color: rgba(255,255,255,0.3);
+  margin-top: 8px; font-style: italic;
+}
+
+/* ── SCREENS 2–5: FRAME DEEP DIVES ── */
+.frame-screen {
+  overflow-y: auto; overflow-x: hidden;
+  padding-bottom: 70px;
+}
+.frame-hero {
+  display: grid; grid-template-columns: 1fr 1.6fr;
+  min-height: 45vh;
+  flex-shrink: 0;
+}
+.frame-hero-left {
+  padding: 48px 40px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.frame-hero-left::after {
+  content: attr(data-num);
+  font-family: 'DM Serif Display', serif;
+  font-size: 200px; font-weight: 400;
+  position: absolute; bottom: -30px; right: -20px;
+  opacity: 0.07; color: white; line-height: 1;
+  pointer-events: none;
+}
+.frame-hero-right {
+  background: white; color: var(--black);
+  padding: 48px 40px 40px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.frame-num-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: rgba(255,255,255,0.4); margin-bottom: 16px;
+}
+.frame-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(38px, 5vw, 62px);
+  color: white; line-height: 1.0;
+  margin-bottom: 16px;
+}
+.frame-metaphor {
+  font-size: 15px; font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6; max-width: 300px;
+}
+.frame-hero-icon { font-size: 44px; margin-bottom: 12px; }
+
+.frame-core-q {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px; color: var(--black);
+  line-height: 1.3; margin-bottom: 16px;
+}
+.frame-q-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 8px;
+}
+.frame-definition {
+  font-size: 15px; color: #444; line-height: 1.7;
+}
+.frame-lens-tag {
+  display: inline-block; margin-top: 16px;
+  font-size: 12px; font-weight: 700;
+  padding: 5px 14px; border-radius: 3px;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+/* CONTENT PANELS BELOW HERO */
+.frame-body {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 3px; background: #ddd;
+  padding: 3px;
+}
+.frame-panel {
+  background: white; color: var(--black);
+  padding: 28px 32px;
+}
+.frame-panel.dark { background: var(--black); color: white; }
+.frame-panel.accent { color: white; }
+
+.fp-eyebrow {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.fp-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px; line-height: 1.2;
+  margin-bottom: 16px;
+}
+.fp-body { font-size: 14px; line-height: 1.7; color: #555; }
+.frame-panel.dark .fp-body { color: #aaa; }
+.frame-panel.accent .fp-body { color: rgba(255,255,255,0.75); }
+
+/* Signals list */
+.signals { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.signal-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 6px;
+}
+.signal-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.signal-text { font-size: 13px; line-height: 1.5; }
+.signal-text strong { display: block; font-weight: 700; margin-bottom: 2px; font-size: 13px; }
+
+/* KILROY scenarios */
+.scenarios { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.scenario-item {
+  border-left: 3px solid;
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+}
+.scenario-situation {
+  font-size: 13px; font-weight: 600;
+  color: var(--black); margin-bottom: 4px;
+}
+.scenario-item .frame-panel.dark .scenario-situation { color: white; }
+.scenario-lens {
+  font-size: 12px; color: #888; line-height: 1.4;
+}
+
+/* Action list */
+.action-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.action-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; line-height: 1.5;
+}
+.action-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px; font-weight: 400;
+  line-height: 1; flex-shrink: 0; margin-top: -2px;
+}
+
+/* ── SCREEN 6: DIAGNOSTIC EXERCISE ── */
+#s6 {
+  background: var(--offwhite);
+  color: var(--black);
+  padding-bottom: 70px;
+  overflow-y: auto;
+}
+.diag-header {
+  background: var(--black);
+  padding: 20px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 3px solid var(--orange);
+  flex-shrink: 0;
+  position: sticky; top: 0; z-index: 10;
+}
+.diag-header h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 24px; color: white;
+}
+.diag-header p { font-size: 13px; color: #888; margin-top: 2px; }
+
+.diag-body { padding: 32px 40px; }
+.diag-intro {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px; color: var(--black);
+  max-width: 700px; line-height: 1.4;
+  margin-bottom: 32px;
+}
+
+.scenario-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 14px; margin-bottom: 32px;
+}
+.diag-card {
+  background: white; border-radius: 8px;
+  padding: 22px; cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+.diag-card:hover { border-color: #ddd; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.diag-card.revealed { border-color: var(--orange); }
+.diag-card-letter {
+  font-family: 'DM Serif Display', serif;
+  font-size: 42px; font-weight: 400;
+  color: #e8e8e8; position: absolute;
+  top: 12px; right: 16px; line-height: 1;
+}
+.diag-card-situation {
+  font-size: 14px; font-weight: 600;
+  color: var(--black); line-height: 1.5;
+  margin-bottom: 10px; padding-right: 40px;
+}
+.diag-card-prompt {
+  font-size: 12px; color: #888;
+  font-style: italic; margin-bottom: 14px;
+  line-height: 1.4;
+}
+.diag-reveal-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 8px 16px; border-radius: 3px;
+  cursor: pointer; border: 1.5px solid #ddd;
+  background: white; color: #888;
+  transition: all 0.2s; width: 100%;
+}
+.diag-reveal-btn:hover { border-color: var(--orange); color: var(--orange); }
+.diag-answer {
+  display: none; margin-top: 14px;
+  padding: 14px; border-radius: 6px;
+}
+.diag-card.revealed .diag-answer { display: block; }
+.diag-answer-frame {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; margin-bottom: 6px;
+}
+.diag-answer-why { font-size: 12px; color: #555; line-height: 1.5; }
+
+/* ── SCREEN 7: THE SELF-CHECK ── */
+#s7 {
+  background: var(--black);
+  color: white;
+  overflow-y: auto;
+  padding-bottom: 70px;
+}
+.selfcheck-header {
+  padding: 32px 40px 0;
+}
+.selfcheck-eyebrow {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 12px;
+}
+.selfcheck-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.05; margin-bottom: 8px;
+}
+.selfcheck-sub { font-size: 15px; color: #666; margin-bottom: 32px; }
+
+.selfcheck-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 3px; background: #1a1a1a;
+  margin: 0 3px;
+}
+.sc-cell {
+  padding: 28px 32px; background: #111;
+}
+.sc-frame-label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.sc-question {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; line-height: 1.3;
+  margin-bottom: 16px; color: white;
+}
+.sc-items { display: flex; flex-direction: column; gap: 6px; }
+.sc-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: #888; line-height: 1.4;
+}
+.sc-checkbox {
+  width: 16px; height: 16px; border-radius: 3px;
+  border: 1.5px solid #333; flex-shrink: 0;
+  margin-top: 1px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.sc-checkbox.checked { border-color: var(--orange); background: var(--orange); }
+.sc-checkbox.checked::after { content: '✓'; font-size: 10px; color: white; font-weight: 700; }
+
+.selfcheck-footer {
+  padding: 28px 40px;
+  display: flex; align-items: flex-start; gap: 32px;
+}
+.sfooter-block { flex: 1; }
+.sfooter-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 8px;
+}
+.sfooter-question {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; line-height: 1.3; color: white;
+  margin-bottom: 8px;
+}
+.sfooter-hint { font-size: 13px; color: #555; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-1 { animation: fadeUp 0.5s 0.0s ease both; }
+.anim-2 { animation: fadeUp 0.5s 0.1s ease both; }
+.anim-3 { animation: fadeUp 0.5s 0.2s ease both; }
+.anim-4 { animation: fadeUp 0.5s 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     SCREEN 0 — HOOK
+════════════════════════════════ -->
+<div class="screen active" id="s0">
+  <div class="hook-wrap">
+    <div class="hook-eyebrow">KILROY Leadership Academy · Module 9</div>
+    <h1 class="hook-headline">
+      Something feels off<br>in your team.<br>
+      <em>Which frame tells you why?</em>
+    </h1>
+    <p class="hook-sub">Bolman & Deal's 4-Frame Model is not a theory to memorise. It's a set of lenses — four different ways of looking at the same problem. The right lens leads to the right action.</p>
+    <div class="hook-frames">
+      <div class="hook-frame-pill" style="background:var(--structural)">Structural</div>
+      <div class="hook-frame-pill" style="background:var(--hr)">Human Resource</div>
+      <div class="hook-frame-pill" style="background:var(--political)">Political</div>
+      <div class="hook-frame-pill" style="background:var(--symbolic)">Symbolic</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 1 — OVERVIEW 2×2
+════════════════════════════════ -->
+<div class="screen" id="s1">
+  <div class="overview-header">
+    <div>
+      <h2>The Four Frames</h2>
+      <p>Each frame asks a different question. Each leads to a different kind of intervention.</p>
+    </div>
+    <div class="overview-badge">The Model</div>
+  </div>
+  <div class="quadrant-grid">
+
+    <div class="q-cell q-structural" onclick="goTo(2)">
+      <div class="q-num">01</div>
+      <div class="q-icon">⚙️</div>
+      <div class="q-eyebrow">Frame 1</div>
+      <div class="q-title">Structural</div>
+      <div class="q-tagline">Organisations as machines. Roles, rules, processes and goals. When something breaks, is the design at fault?</div>
+      <div class="q-question">Are roles and processes clear?</div>
+      <div class="q-click-hint">Click to explore →</div>
+    </div>
+
+    <div class="q-cell q-hr" onclick="goTo(3)">
+      <div class="q-num">02</div>
+      <div class="q-icon">🤝</div>
+      <div class="q-eyebrow">Frame 2</div>
+      <div class="q-title">Human Resource</div>
+      <div class="q-tagline">Organisations as families. People, motivation, needs and relationships. Are people matched to their roles?</div>
+      <div class="q-question">Are people seen, heard and valued?</div>
+      <div class="q-click-hint">Click to explore →</div>
+    </div>
+
+    <div class="q-cell q-political" onclick="goTo(4)">
+      <div class="q-num">03</div>
+      <div class="q-icon">⚡</div>
+      <div class="q-eyebrow">Frame 3</div>
+      <div class="q-title">Political</div>
+      <div class="q-tagline">Organisations as arenas. Power, coalitions, competing interests. Who has influence — and are they using it?</div>
+      <div class="q-question">Who has power here, and why?</div>
+      <div class="q-click-hint">Click to explore →</div>
+    </div>
+
+    <div class="q-cell q-symbolic" onclick="goTo(5)">
+      <div class="q-num">04</div>
+      <div class="q-icon">🔥</div>
+      <div class="q-eyebrow">Frame 4</div>
+      <div class="q-title">Symbolic</div>
+      <div class="q-tagline">Organisations as tribes. Culture, stories, rituals, identity. What does it feel like to belong here?</div>
+      <div class="q-question">What does this team believe in?</div>
+      <div class="q-click-hint">Click to explore →</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 2 — STRUCTURAL
+════════════════════════════════ -->
+<div class="screen frame-screen" id="s2">
+  <div class="frame-hero">
+    <div class="frame-hero-left" style="background:var(--structural)" data-num="01">
+      <div>
+        <div class="frame-num-label">Frame 01 / 04</div>
+        <div class="frame-hero-icon">⚙️</div>
+        <div class="frame-name">Structural</div>
+        <div class="frame-metaphor">The organisation as a machine. Every part has a purpose. When the machine breaks down, look at the design first.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:rgba(255,255,255,0.12)">Lens: Engineer / Architect</div>
+    </div>
+    <div class="frame-hero-right">
+      <div>
+        <div class="frame-q-label">The core question</div>
+        <div class="frame-core-q">"Is the problem caused by unclear roles, broken processes, or misaligned goals?"</div>
+        <div class="frame-definition">The structural frame looks at how work is organised and coordinated. It focuses on goals, roles, rules, policies, technology and environment. A structural problem is not about people being difficult — it's about the design being unclear or misaligned.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:var(--structural)">When in doubt: draw the org chart and map the process</div>
+    </div>
+  </div>
+
+  <div class="frame-body">
+    <!-- Signals -->
+    <div class="frame-panel">
+      <div class="fp-eyebrow" style="color:var(--structural)">Signals this frame applies</div>
+      <div class="fp-title">What does a structural problem look like?</div>
+      <div class="signals">
+        <div class="signal-item" style="background:var(--structural-light)">
+          <div class="signal-icon">🔁</div>
+          <div class="signal-text"><strong>The same mistakes keep happening</strong>Nobody writes them down. No process catches them. It's not stupidity — it's missing structure.</div>
+        </div>
+        <div class="signal-item" style="background:var(--structural-light)">
+          <div class="signal-icon">🤷</div>
+          <div class="signal-text"><strong>Two people own the same thing — or nobody does</strong>Overlap and gaps in responsibility. Salesforce queue not distributed. Tasks assigned to "the team."</div>
+        </div>
+        <div class="signal-item" style="background:var(--structural-light)">
+          <div class="signal-icon">📋</div>
+          <div class="signal-text"><strong>Goals exist but nobody agrees on priorities</strong>Everyone is busy. Nothing strategic gets done. Individual effort is high; collective output is low.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KILROY scenarios -->
+    <div class="frame-panel dark">
+      <div class="fp-eyebrow" style="color:var(--orange)">KILROY Scenarios</div>
+      <div class="fp-title">Recognise any of these?</div>
+      <div class="scenarios">
+        <div class="scenario-item" style="border-color:var(--structural);background:#141e2e">
+          <div class="scenario-situation" style="color:white">A TA is consistently sending offers late — even after you've raised it twice.</div>
+          <div class="scenario-lens">Structural lens asks: Is the response-time expectation documented? Is it in their onboarding? Is there a Salesforce view that tracks response time daily?</div>
+        </div>
+        <div class="scenario-item" style="border-color:var(--structural);background:#141e2e">
+          <div class="scenario-situation" style="color:white">Your pipeline in Salesforce is always messy. Requests sit in the wrong stage for weeks.</div>
+          <div class="scenario-lens">Structural lens asks: Is there a documented pipeline hygiene protocol? Who is responsible for reviewing it — and how often?</div>
+        </div>
+        <div class="scenario-item" style="border-color:var(--structural);background:#141e2e">
+          <div class="scenario-situation" style="color:white">Marketing runs a campaign. Sales gets flooded and the lead quality is terrible.</div>
+          <div class="scenario-lens">Structural lens asks: Is there a brief/handoff process between marketing and sales before a campaign launches?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What to do -->
+    <div class="frame-panel accent" style="background:var(--structural)">
+      <div class="fp-eyebrow" style="color:rgba(255,255,255,0.5)">If this frame applies — act here</div>
+      <div class="fp-title">Structural interventions</div>
+      <div class="action-list">
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">01</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Clarify the role, not the person.</strong> Write down what "done well" looks like. Make expectations explicit — not assumed.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">02</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Build the process before you coach the behaviour.</strong> If you keep correcting the same thing, it's a design problem.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">03</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Use your data.</strong> The Salesforce operations dashboard is a structural X-ray. Overdue tasks, unassigned cases — these are structural signals.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caution -->
+    <div class="frame-panel" style="background:#f9f9f9">
+      <div class="fp-eyebrow" style="color:#888">The trap</div>
+      <div class="fp-title">When structural thinking goes wrong</div>
+      <div class="fp-body">Adding more process to solve a motivation problem. Creating a rule when what's needed is a conversation. Over-structuring a small team that works better on trust and autonomy. <br><br><strong>The structural frame is necessary but not sufficient.</strong> A perfectly designed org with people who don't believe in what they're doing is a beautiful machine nobody wants to run.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 3 — HUMAN RESOURCE
+════════════════════════════════ -->
+<div class="screen frame-screen" id="s3">
+  <div class="frame-hero">
+    <div class="frame-hero-left" style="background:var(--hr)" data-num="02">
+      <div>
+        <div class="frame-num-label">Frame 02 / 04</div>
+        <div class="frame-hero-icon">🤝</div>
+        <div class="frame-name">Human Resource</div>
+        <div class="frame-metaphor">The organisation as a family. People bring needs, feelings and ambitions to work. Ignore this and the talent walks — or stays, disengaged.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:rgba(255,255,255,0.12)">Lens: Coach / Servant Leader</div>
+    </div>
+    <div class="frame-hero-right">
+      <div>
+        <div class="frame-q-label">The core question</div>
+        <div class="frame-core-q">"Are people's skills, needs and motivations matched to what the organisation is asking of them?"</div>
+        <div class="frame-definition">The HR frame focuses on the fit between people and the organisation. When people are energised, trusted, developed and well-matched to their roles, performance follows. When they feel unseen or misused, performance suffers — no matter how good the process is.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:var(--hr)">When in doubt: have the real conversation you've been putting off</div>
+    </div>
+  </div>
+
+  <div class="frame-body">
+    <div class="frame-panel">
+      <div class="fp-eyebrow" style="color:var(--hr)">Signals this frame applies</div>
+      <div class="fp-title">What does an HR problem look like?</div>
+      <div class="signals">
+        <div class="signal-item" style="background:var(--hr-light)">
+          <div class="signal-icon">📉</div>
+          <div class="signal-text"><strong>A previously strong performer drops off</strong>Win rate down. Offers slow. No obvious process change. Something shifted personally or relationally.</div>
+        </div>
+        <div class="signal-item" style="background:var(--hr-light)">
+          <div class="signal-icon">🎭</div>
+          <div class="signal-text"><strong>Technically compliant, but no energy</strong>They do what's asked. Minimum effort. Never goes beyond. The data looks okay; the reality doesn't.</div>
+        </div>
+        <div class="signal-item" style="background:var(--hr-light)">
+          <div class="signal-icon">🔄</div>
+          <div class="signal-text"><strong>High turnover despite decent pay</strong>People leave managers, not companies. If someone good is leaving, which unmet need drove them out?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel dark">
+      <div class="fp-eyebrow" style="color:var(--orange)">KILROY Scenarios</div>
+      <div class="fp-title">Recognise any of these?</div>
+      <div class="scenarios">
+        <div class="scenario-item" style="border-color:#A0522D;background:#1a120a">
+          <div class="scenario-situation" style="color:white">A TA's Win Rate has dropped from 38% to 22% over three months. Pipeline looks normal. No customer complaints.</div>
+          <div class="scenario-lens">HR lens asks: When did you last have a genuine check-in — not about pipeline, but about how they're doing? What's changed in their life or role recently?</div>
+        </div>
+        <div class="scenario-item" style="border-color:#A0522D;background:#1a120a">
+          <div class="scenario-situation" style="color:white">You gave clear feedback in a 1-1. Nothing changed. You gave it again. Still nothing.</div>
+          <div class="scenario-lens">HR lens asks: Is the feedback landing the way you intend it? Do they feel safe enough to admit they don't know how to fix it? Is fear blocking action?</div>
+        </div>
+        <div class="scenario-item" style="border-color:#A0522D;background:#1a120a">
+          <div class="scenario-situation" style="color:white">Your best TA has just started looking at other opportunities. You only found out through someone else.</div>
+          <div class="scenario-lens">HR lens asks: What need — growth, recognition, autonomy, challenge — is not being met? And why didn't they feel safe telling you?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel accent" style="background:var(--hr)">
+      <div class="fp-eyebrow" style="color:rgba(255,255,255,0.5)">If this frame applies — act here</div>
+      <div class="fp-title">Human resource interventions</div>
+      <div class="action-list">
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">01</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Ask before you tell.</strong> "What's making this difficult?" before "Here's what you need to do." Most people know what they should do. Motivation is the actual problem.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">02</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Develop, don't just manage.</strong> A TA who feels like they're growing will outperform a TA who feels they're being monitored.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">03</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Match the person to the role, not vice versa.</strong> Not everyone should be doing the same things. Play to strengths deliberately.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel" style="background:#f9f9f9">
+      <div class="fp-eyebrow" style="color:#888">The trap</div>
+      <div class="fp-title">When HR thinking goes wrong</div>
+      <div class="fp-body">Prioritising harmony over accountability. Avoiding hard conversations because they feel "unkind." Treating every performance problem as a motivation issue when sometimes the person is simply in the wrong role.<br><br><strong>Empathy without accountability is just tolerance of underperformance.</strong> The HR frame works best when paired with the structural frame — care AND clarity.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 4 — POLITICAL
+════════════════════════════════ -->
+<div class="screen frame-screen" id="s4">
+  <div class="frame-hero">
+    <div class="frame-hero-left" style="background:var(--political)" data-num="03">
+      <div>
+        <div class="frame-num-label">Frame 03 / 04</div>
+        <div class="frame-hero-icon">⚡</div>
+        <div class="frame-name">Political</div>
+        <div class="frame-metaphor">The organisation as an arena. Resources are scarce. People have competing interests. Power is real — and pretending it isn't doesn't make it go away.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:rgba(255,255,255,0.12)">Lens: Negotiator / Strategist</div>
+    </div>
+    <div class="frame-hero-right">
+      <div>
+        <div class="frame-q-label">The core question</div>
+        <div class="frame-core-q">"Whose interests are at stake? Who has power — and are they aligned or in conflict?"</div>
+        <div class="frame-definition">The political frame views organisations as coalitions of individuals with different interests and unequal power. Conflict is normal — not a sign of dysfunction. The skill is learning to navigate it: build alliances, manage competing agendas, and find solutions that work across interests.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:var(--political)">When in doubt: ask who benefits, who loses, and who has influence</div>
+    </div>
+  </div>
+
+  <div class="frame-body">
+    <div class="frame-panel">
+      <div class="fp-eyebrow" style="color:var(--political)">Signals this frame applies</div>
+      <div class="fp-title">What does a political problem look like?</div>
+      <div class="signals">
+        <div class="signal-item" style="background:var(--political-light)">
+          <div class="signal-icon">🧊</div>
+          <div class="signal-text"><strong>Decisions get made but never implemented</strong>Everyone nodded in the meeting. Nothing changed. Someone with influence is quietly blocking it.</div>
+        </div>
+        <div class="signal-item" style="background:var(--political-light)">
+          <div class="signal-icon">💥</div>
+          <div class="signal-text"><strong>Two strong performers keep clashing</strong>Both are talented. Together they create friction. Their interests or status are in competition.</div>
+        </div>
+        <div class="signal-item" style="background:var(--political-light)">
+          <div class="signal-icon">🔕</div>
+          <div class="signal-text"><strong>Your initiative keeps dying quietly</strong>No one openly opposes it. But it never gets resources, airtime, or support. Politics is running on a different channel.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel dark">
+      <div class="fp-eyebrow" style="color:var(--orange)">KILROY Scenarios</div>
+      <div class="fp-title">Recognise any of these?</div>
+      <div class="scenarios">
+        <div class="scenario-item" style="border-color:#8B0000;background:#160a0a">
+          <div class="scenario-situation" style="color:white">You propose a new way of distributing inbound leads. Two TAs support it. One senior TA goes quiet. It never gets implemented.</div>
+          <div class="scenario-lens">Political lens asks: What does the senior TA stand to lose from this change? Have you had a direct conversation about their concern — or assumed they'd come around?</div>
+        </div>
+        <div class="scenario-item" style="border-color:#8B0000;background:#160a0a">
+          <div class="scenario-situation" style="color:white">Marketing runs campaigns that Sales doesn't know about in advance. Tension between the two functions is constant.</div>
+          <div class="scenario-lens">Political lens asks: Whose KPIs are optimised by the current arrangement? Neither team is "wrong" — they're optimising for different goals. Who has the authority to align them?</div>
+        </div>
+        <div class="scenario-item" style="border-color:#8B0000;background:#160a0a">
+          <div class="scenario-situation" style="color:white">A new team member with strong opinions is creating subtle tension with someone who's been there five years.</div>
+          <div class="scenario-lens">Political lens asks: The long-timer's informal authority is being challenged. What informal power do they hold? How can you acknowledge their status while making space for fresh energy?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel accent" style="background:var(--political)">
+      <div class="fp-eyebrow" style="color:rgba(255,255,255,0.5)">If this frame applies — act here</div>
+      <div class="fp-title">Political interventions</div>
+      <div class="action-list">
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">01</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Map the coalition before you launch the initiative.</strong> Who needs to be on board? Who can block? Bring them in early — not after the fact.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">02</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Name the conflict directly.</strong> "I think we have a tension here between X and Y — can we talk about it?" is more powerful than pretending it doesn't exist.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">03</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Find the shared interest.</strong> Even opposing parties usually share something. Find the common ground and build from there.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel" style="background:#f9f9f9">
+      <div class="fp-eyebrow" style="color:#888">The trap</div>
+      <div class="fp-title">When political thinking goes wrong</div>
+      <div class="fp-body">Seeing everything as political manipulation. Becoming cynical about motives. Playing the game so well you lose your own credibility and trust.<br><br><strong>The political frame is descriptive, not prescriptive.</strong> Acknowledging that power dynamics exist is not the same as endorsing them. The goal is transparency and alignment — not winning at all costs.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 5 — SYMBOLIC
+════════════════════════════════ -->
+<div class="screen frame-screen" id="s5">
+  <div class="frame-hero">
+    <div class="frame-hero-left" style="background:var(--symbolic)" data-num="04">
+      <div>
+        <div class="frame-num-label">Frame 04 / 04</div>
+        <div class="frame-hero-icon">🔥</div>
+        <div class="frame-name">Symbolic</div>
+        <div class="frame-metaphor">The organisation as a tribe. Culture is the invisible operating system. Stories, rituals, and symbols shape behaviour more than any policy document ever will.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:rgba(255,255,255,0.12)">Lens: Storyteller / Culture Keeper</div>
+    </div>
+    <div class="frame-hero-right">
+      <div>
+        <div class="frame-q-label">The core question</div>
+        <div class="frame-core-q">"What does it mean to work here? What stories do people tell? What do we celebrate and what do we ignore?"</div>
+        <div class="frame-definition">The symbolic frame focuses on culture, meaning, ritual and identity. It recognises that humans are meaning-making creatures. People don't just work for money — they work for belonging, pride, purpose and story. When culture is broken, no structural fix will solve it.</div>
+      </div>
+      <div class="frame-lens-tag" style="background:var(--symbolic)">When in doubt: listen to the stories people tell each other in the corridor</div>
+    </div>
+  </div>
+
+  <div class="frame-body">
+    <div class="frame-panel">
+      <div class="fp-eyebrow" style="color:var(--symbolic)">Signals this frame applies</div>
+      <div class="fp-title">What does a symbolic problem look like?</div>
+      <div class="signals">
+        <div class="signal-item" style="background:var(--symbolic-light)">
+          <div class="signal-icon">🌫️</div>
+          <div class="signal-text"><strong>The team hits targets but nobody cares</strong>Numbers are fine. Nobody's proud of anything. Work feels transactional. Nobody tells stories about great bookings.</div>
+        </div>
+        <div class="signal-item" style="background:var(--symbolic-light)">
+          <div class="signal-icon">🚪</div>
+          <div class="signal-text"><strong>Strong hires don't last</strong>Good on paper, wrong in the room. Cultural misfit. What is said in interviews vs. what is actually rewarded diverges.</div>
+        </div>
+        <div class="signal-item" style="background:var(--symbolic-light)">
+          <div class="signal-icon">🎭</div>
+          <div class="signal-text"><strong>Values on the wall, not in the room</strong>"We care about the customer" — but the team rushes offers, ignores follow-ups. There's a gap between stated and lived values.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel dark">
+      <div class="fp-eyebrow" style="color:var(--orange)">KILROY Scenarios</div>
+      <div class="fp-title">Recognise any of these?</div>
+      <div class="scenarios">
+        <div class="scenario-item" style="border-color:#0F4C3A;background:#091a13">
+          <div class="scenario-situation" style="color:white">KILROY talks about being travel experts and caring deeply about customers. But your team celebrates the number of bookings — not the quality of the journey they designed.</div>
+          <div class="scenario-lens">Symbolic lens asks: What does the team actually celebrate? The metric you reward is the story you're telling about what matters here. Does it match KILROY's identity?</div>
+        </div>
+        <div class="scenario-item" style="border-color:#0F4C3A;background:#091a13">
+          <div class="scenario-situation" style="color:white">A new TA with great credentials is technically fine but the rest of the team keeps them at arm's length after 4 months.</div>
+          <div class="scenario-lens">Symbolic lens asks: Are there unspoken rituals, norms or "how we do things here" that the new person doesn't know? Culture is often invisible to those inside it.</div>
+        </div>
+        <div class="scenario-item" style="border-color:#0F4C3A;background:#091a13">
+          <div class="scenario-situation" style="color:white">The team went through a difficult period last year. Performance recovered, but the energy never quite came back.</div>
+          <div class="scenario-lens">Symbolic lens asks: Has the team processed what happened? Sometimes what's needed is a shared story about "we went through that, and we came back." Culture needs narrative to heal.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel accent" style="background:var(--symbolic)">
+      <div class="fp-eyebrow" style="color:rgba(255,255,255,0.5)">If this frame applies — act here</div>
+      <div class="fp-title">Symbolic interventions</div>
+      <div class="action-list">
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">01</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Change what you celebrate.</strong> Whatever gets recognised gets repeated. Start celebrating the quality of customer interactions — not just the conversion.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">02</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Tell the story intentionally.</strong> "Here's where we were, here's where we are, here's where we're going." Teams that have a shared narrative are more resilient.</div>
+        </div>
+        <div class="action-item">
+          <div class="action-num" style="color:rgba(255,255,255,0.25)">03</div>
+          <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6"><strong>Make the culture explicit.</strong> Your Team Charter from today is a symbolic act — committing together to who you want to be. Use it that way.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frame-panel" style="background:#f9f9f9">
+      <div class="fp-eyebrow" style="color:#888">The trap</div>
+      <div class="fp-title">When symbolic thinking goes wrong</div>
+      <div class="fp-body">Using culture as an excuse to avoid structural problems. "We just need better vibes" when what's needed is clearer roles. Ritual without substance — team lunches and away-days that don't address the underlying issues.<br><br><strong>Culture is shaped by every decision you make</strong> — who you promote, what you tolerate, what you reward. You're always communicating something symbolically, whether you intend to or not.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 6 — DIAGNOSTIC EXERCISE
+════════════════════════════════ -->
+<div class="screen" id="s6">
+  <div class="diag-header">
+    <div>
+      <h2>Quick Diagnostic — Which Frame?</h2>
+      <p>Read each situation. Pick the primary frame. Then reveal the answer.</p>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--orange);border:1.5px solid var(--orange);padding:5px 14px;border-radius:3px;">Exercise</div>
+  </div>
+
+  <div class="diag-body">
+    <p class="diag-intro">Same team. Same day. Four problems. Four different root causes.</p>
+
+    <div class="scenario-cards">
+
+      <div class="diag-card" id="dc1">
+        <div class="diag-card-letter">A</div>
+        <div class="diag-card-situation">"Our best TA handed in their notice. We had no idea they were unhappy. Their numbers were fine right up until the end."</div>
+        <div class="diag-card-prompt">Which frame explains this — and what should you have done differently?</div>
+        <button class="diag-reveal-btn" onclick="revealDiag('dc1')">Reveal frame →</button>
+        <div class="diag-answer" style="background:#FFF8F0">
+          <div class="diag-answer-frame" style="color:var(--hr)">🤝 Human Resource Frame</div>
+          <div class="diag-answer-why">Strong performance metrics can mask disengagement. The HR frame would have prompted regular genuine check-ins beyond pipeline reviews — asking about growth, fulfilment, and what's making work hard. Numbers are a lagging indicator of motivation.</div>
+        </div>
+      </div>
+
+      <div class="diag-card" id="dc2">
+        <div class="diag-card-letter">B</div>
+        <div class="diag-card-situation">"We agreed on a new offer template in January. It's now June. Half the team uses it, half doesn't. Nobody knows who's responsible for enforcing it."</div>
+        <div class="diag-card-prompt">Which frame explains this — and what should change?</div>
+        <button class="diag-reveal-btn" onclick="revealDiag('dc2')">Reveal frame →</button>
+        <div class="diag-answer" style="background:#EEF4FF">
+          <div class="diag-answer-frame" style="color:var(--structural)">⚙️ Structural Frame</div>
+          <div class="diag-answer-why">When a change is agreed but not adopted, the first question is structural: Was it documented and trained? Is there a clear owner? Is compliance visible in Salesforce? Good intentions don't create structural accountability — clear ownership and a review mechanism does.</div>
+        </div>
+      </div>
+
+      <div class="diag-card" id="dc3">
+        <div class="diag-card-letter">C</div>
+        <div class="diag-card-situation">"The team closes every Friday with a quick debrief. When it was cancelled two weeks in a row, the atmosphere shifted noticeably. Nobody said anything, but something felt different."</div>
+        <div class="diag-card-prompt">Which frame explains why this ritual matters?</div>
+        <button class="diag-reveal-btn" onclick="revealDiag('dc3')">Reveal frame →</button>
+        <div class="diag-answer" style="background:#F0FFF5">
+          <div class="diag-answer-frame" style="color:var(--symbolic)">🔥 Symbolic Frame</div>
+          <div class="diag-answer-why">The Friday debrief is not just a meeting — it's a ritual that signals "we are a team, we close the week together." Its absence sent a symbolic message, even unintentionally. Small rituals carry significant cultural weight.</div>
+        </div>
+      </div>
+
+      <div class="diag-card" id="dc4">
+        <div class="diag-card-letter">D</div>
+        <div class="diag-card-situation">"A new incentive structure was announced from HQ. It makes sense on paper. Two senior TAs are visibly unenthusiastic. Within a month, newer TAs have followed their lead."</div>
+        <div class="diag-card-prompt">Which frame explains why the rollout is failing?</div>
+        <button class="diag-reveal-btn" onclick="revealDiag('dc4')">Reveal frame →</button>
+        <div class="diag-answer" style="background:#FFF0F0">
+          <div class="diag-answer-frame" style="color:var(--political)">⚡ Political Frame</div>
+          <div class="diag-answer-why">The senior TAs hold informal authority. They didn't buy in — possibly because their interests weren't addressed in the design. Newer team members take social cues from high-status peers. The political frame asks: who should have been consulted before the rollout?</div>
+        </div>
+      </div>
+
+      <div class="diag-card" id="dc5">
+        <div class="diag-card-letter">E</div>
+        <div class="diag-card-situation">"Two TAs in the team produce almost identical numbers. One is constantly praised in team meetings. The other never gets mentioned. The unrecognised one starts cutting corners."</div>
+        <div class="diag-card-prompt">Which frame — and is there more than one at play?</div>
+        <button class="diag-reveal-btn" onclick="revealDiag('dc5')">Reveal frame →</button>
+        <div class="diag-answer" style="background:#FFF8F0">
+          <div class="diag-answer-frame" style="color:var(--hr)">🤝 HR + 🔥 Symbolic (both)</div>
+          <div class="diag-answer-why">HR frame: An unmet need for recognition is draining motivation. Symbolic frame: What you praise in public is a signal to the whole team about what is valued. Inconsistency in recognition communicates a hierarchy of worth that corrodes culture.</div>
+        </div>
+      </div>
+
+      <div class="diag-card" id="dc6">
+        <div class="diag-card-letter">F</div>
+        <div class="diag-card-situation">"Your market's Win Rate has been flat for 8 months despite coaching, training and multiple process changes. Everything you try makes a small dent then fades."</div>
+        <div class="diag-card-prompt">Which frame haven't you tried yet?</div>
+        <button class="diag-reveal-btn" onclick="revealDiag('dc6')">Reveal frame →</button>
+        <div class="diag-answer" style="background:#F0FFF5">
+          <div class="diag-answer-frame" style="color:var(--symbolic)">🔥 Symbolic Frame</div>
+          <div class="diag-answer-why">If structural and HR interventions haven't moved the needle, ask what story the team is telling itself. "We're just not a high-conversion market." "It's always been like this." Culture can absorb change initiatives without transforming. The story needs to change before the numbers do.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 7 — SELF-CHECK + CLOSE
+════════════════════════════════ -->
+<div class="screen" id="s7">
+  <div class="selfcheck-header">
+    <div class="selfcheck-eyebrow">Module 9 — Takeaway</div>
+    <div class="selfcheck-title">Your team, right now.<br>Which frame do you need?</div>
+    <div class="selfcheck-sub">Check every item that feels true for your market today.</div>
+  </div>
+
+  <div class="selfcheck-grid">
+    <div class="sc-cell">
+      <div class="sc-frame-label" style="color:#6B9FD4">⚙️ Structural signals</div>
+      <div class="sc-question">"Something keeps going wrong and I've corrected it more than twice."</div>
+      <div class="sc-items">
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>Roles or responsibilities feel unclear to the team</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>We don't have a documented process for X</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>Our Salesforce pipeline doesn't reflect reality</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>Decisions get made but ownership isn't assigned</span></div>
+      </div>
+    </div>
+    <div class="sc-cell">
+      <div class="sc-frame-label" style="color:#D4A96B">🤝 Human Resource signals</div>
+      <div class="sc-question">"Someone on the team isn't performing — and I haven't had the real conversation."</div>
+      <div class="sc-items">
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>A previously strong performer has changed</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>Someone is meeting targets but seems switched off</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>My 1-1s stay surface-level — I avoid the hard topics</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>I'm not sure what motivates each person on my team</span></div>
+      </div>
+    </div>
+    <div class="sc-cell">
+      <div class="sc-frame-label" style="color:#D46B6B">⚡ Political signals</div>
+      <div class="sc-question">"Something I'm trying to change keeps dying — and I don't fully understand why."</div>
+      <div class="sc-items">
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>An initiative was agreed but never fully implemented</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>Two people on the team have persistent tension</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>I sense resistance but it's never said out loud</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>I don't always know who has influence in my team</span></div>
+      </div>
+    </div>
+    <div class="sc-cell">
+      <div class="sc-frame-label" style="color:#6BD4A9">🔥 Symbolic signals</div>
+      <div class="sc-question">"The team hits its numbers but something about the energy feels off."</div>
+      <div class="sc-items">
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>We don't really celebrate wins — or we celebrate the wrong things</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>New people take a long time to feel like they belong</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>The team's identity feels unclear or uninspiring</span></div>
+        <div class="sc-item"><div class="sc-checkbox" onclick="toggle(this)"></div><span>I don't know what story people tell about working here</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="selfcheck-footer">
+    <div class="sfooter-block">
+      <div class="sfooter-label">Your diagnosis</div>
+      <div class="sfooter-question">Which frame has the most boxes checked?</div>
+      <div class="sfooter-hint">That's your starting point. Not the only thing — but the most urgent lens to apply when you get home.</div>
+    </div>
+    <div class="sfooter-block">
+      <div class="sfooter-label">The key principle</div>
+      <div class="sfooter-question">Great leaders use all four frames.</div>
+      <div class="sfooter-hint">The goal is not to pick your favourite frame and ignore the others. It's to ask: which frame am I underusing? That's usually where the blind spot lives.</div>
+    </div>
+    <div class="sfooter-block" style="flex:1.2">
+      <div class="sfooter-label">One action</div>
+      <div class="sfooter-question">This week, look at your team through the frame you use least.</div>
+      <div class="sfooter-hint" style="font-size:14px;color:#FF4713;margin-top:8px;">Structural → Map a broken process.<br>HR → Have the check-in you've been avoiding.<br>Political → Name the conflict you've been dancing around.<br>Symbolic → Tell a story about what this team is capable of.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     NAV BAR
+════════════════════════════════ -->
+<div class="nav">
+  <div class="nav-left">
+    <div class="kilroy-tag">KiLROY</div>
+    <div class="nav-module">Leadership Academy · Module 9 · Bolman & Deal 4-Frame Model</div>
+  </div>
+  <div class="nav-center" id="nav-dots"></div>
+  <div class="nav-right">
+    <button class="nav-btn nav-btn-prev" id="btn-prev" onclick="navigate(-1)">← Back</button>
+    <button class="nav-btn nav-btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+const SCREENS = ['s0','s1','s2','s3','s4','s5','s6','s7'];
+const LABELS  = ['Intro','Overview','Structural','HR','Political','Symbolic','Exercise','Self-check'];
+let current = 0;
+
+// Build dots
+const dotsEl = document.getElementById('nav-dots');
+SCREENS.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+  d.title = LABELS[i];
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function goTo(n) {
+  if (n < 0 || n >= SCREENS.length) return;
+  document.getElementById(SCREENS[current]).classList.remove('active');
+  current = n;
+  document.getElementById(SCREENS[current]).classList.add('active');
+  // Scroll to top on frame screens
+  const el = document.getElementById(SCREENS[current]);
+  el.scrollTop = 0;
+  updateNav();
+}
+
+function navigate(dir) { goTo(current + dir); }
+
+function updateNav() {
+  const dots = dotsEl.querySelectorAll('.nav-dot');
+  dots.forEach((d, i) => {
+    d.classList.toggle('active', i === current);
+    d.classList.toggle('visited', i < current);
+  });
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').disabled = current === SCREENS.length - 1;
+  document.getElementById('btn-next').textContent = current === SCREENS.length - 1 ? 'Done' : 'Next →';
+}
+
+function revealDiag(id) {
+  const card = document.getElementById(id);
+  card.classList.add('revealed');
+  card.querySelector('.diag-reveal-btn').textContent = 'Answer shown ✓';
+}
+
+function toggle(el) {
+  el.classList.toggle('checked');
+}
+
+updateNav();
+</script>
+</body>
+</html>
