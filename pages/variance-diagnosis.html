@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILROY · Variance Diagnosis</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF4713;
+    --black: #1A1A1A;
+    --gray: #888888;
+    --light-gray: #E8E8E8;
+    --bg: #FAFAFA;
+    --green: #22A06B;
+    --red: #E5484D;
+    --green-soft: #E6F4EF;
+    --red-soft: #FEEBEC;
+    --gray-soft: #F1F1F1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--black);
+    line-height: 1.5;
+    padding: 32px 40px 60px;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+
+  .header {
+    border-bottom: 2px solid var(--black);
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .header h1 .accent { color: var(--orange); }
+  .header .subtitle {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    font-weight: 500;
+  }
+
+  /* Scenario selector */
+  .scenarios {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .scenario-btn {
+    background: white;
+    border: 1.5px solid var(--light-gray);
+    padding: 14px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .scenario-btn:hover { border-color: var(--gray); }
+  .scenario-btn.active {
+    border-color: var(--orange);
+    background: var(--orange);
+    color: white;
+  }
+  .scenario-btn .num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .scenario-btn .name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Headline panel */
+  .headline {
+    background: white;
+    border: 1.5px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 20px;
+  }
+  .headline-left .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 6px;
+  }
+  .headline-left .market {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .headline-left .actual-bud {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .headline-left .actual-bud .vs-bud {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--gray);
+    margin-left: 8px;
+  }
+  .headline-left .ly {
+    font-size: 13px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .pill.red { background: var(--red-soft); color: var(--red); }
+  .pill.green { background: var(--green-soft); color: var(--green); }
+  .pill.gray { background: var(--gray-soft); color: var(--gray); }
+  .pill.large { font-size: 22px; padding: 8px 16px; }
+
+  /* Layer cards */
+  .layers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .layer-card {
+    background: white;
+    border: 1.5px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 18px 18px 16px;
+  }
+  .layer-card .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--light-gray);
+  }
+  .layer-card .layer-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 0.08em;
+  }
+  .layer-card .layer-title {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .kpi-row {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--light-gray);
+  }
+  .kpi-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .kpi-row .kpi-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .kpi-row .kpi-values {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .kpi-row .kpi-actual {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .kpi-row .kpi-bud {
+    font-size: 11px;
+    color: var(--gray);
+  }
+  .kpi-row .pill { font-size: 11px; padding: 2px 7px; }
+
+  /* Reveal */
+  .reveal-section {
+    margin-top: 8px;
+  }
+  .reveal-btn {
+    width: 100%;
+    background: var(--black);
+    color: white;
+    border: none;
+    padding: 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .reveal-btn:hover { background: var(--orange); }
+  .reveal-btn.revealed { display: none; }
+
+  .diagnosis {
+    background: white;
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    padding: 26px 30px;
+    display: none;
+  }
+  .diagnosis.show { display: block; }
+  .diagnosis .label {
+    font-size: 11px;
+    color: var(--orange);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .diagnosis h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .diagnosis .signature {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .diagnosis .signals {
+    background: var(--bg);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .diagnosis .signals .signals-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .diagnosis .signals ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  .diagnosis .signals li {
+    font-size: 13px;
+    padding: 4px 0 4px 18px;
+    position: relative;
+  }
+  .diagnosis .signals li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--orange);
+    font-weight: 700;
+  }
+  .diagnosis .teaching {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--gray);
+    padding-top: 14px;
+    border-top: 1px dashed var(--light-gray);
+  }
+  .diagnosis .smart-prompt {
+    margin-top: 14px;
+    background: #FFF4F0;
+    padding: 12px 16px;
+    border-left: 3px solid var(--orange);
+    font-size: 13px;
+  }
+  .diagnosis .smart-prompt strong { font-weight: 700; }
+
+  .footer-note {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Loss reasons mini-chart */
+  .loss-reasons {
+    margin-top: 10px;
+  }
+  .loss-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: 11px;
+  }
+  .loss-row .label-text { color: var(--gray); }
+  .loss-row .bar-wrap {
+    flex: 1;
+    margin: 0 8px;
+    background: var(--gray-soft);
+    height: 5px;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .loss-row .bar {
+    height: 100%;
+    background: var(--orange);
+  }
+  .loss-row .pct { font-weight: 700; font-size: 11px; min-width: 32px; text-align: right; }
+
+  @media (max-width: 1100px) {
+    .layers { grid-template-columns: repeat(2, 1fr); }
+    .scenarios { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>VARIANCE <span class="accent">DIAGNOSIS</span></h1>
+    <div class="subtitle">Market-level · Sales vs. Budget · 4 Scenarios</div>
+  </div>
+
+  <div class="scenarios" id="scenarios">
+    <button class="scenario-btn active" data-id="volume">
+      <span class="num">01</span>
+      <span class="name">THE VOLUME DROUGHT</span>
+    </button>
+    <button class="scenario-btn" data-id="conversion">
+      <span class="num">02</span>
+      <span class="name">THE CONVERSION CRISIS</span>
+    </button>
+    <button class="scenario-btn" data-id="margin">
+      <span class="num">03</span>
+      <span class="name">THE SILENT MARGIN BLEED</span>
+    </button>
+    <button class="scenario-btn" data-id="squeeze">
+      <span class="num">04</span>
+      <span class="name">THE COMPETITIVE SQUEEZE</span>
+    </button>
+  </div>
+
+  <div id="scenario-content"></div>
+
+  <div class="footer-note">DIAGNOSE BEFORE YOU REACT · KILROY LEADERSHIP ACADEMY</div>
+</div>
+
+<script>
+const scenarios = {
+  volume: {
+    headline: {
+      market: "KILROY NORDICS — YTD",
+      actual: "DKK 23.4M",
+      bud: "30.0M",
+      variance: "−22%",
+      varianceClass: "red",
+      ly: "vs LY: −16% (LY: DKK 27.9M)"
+    },
+    layers: [
+      {
+        num: "01", title: "VOLUME",
+        kpis: [
+          { name: "Requests Assigned", actual: "1,330", bud: "Bud: 1,900", pill: "−30%", pillClass: "red" },
+          { name: "Bookings", actual: "296", bud: "Bud: 380", pill: "−22%", pillClass: "red" }
+        ]
+      },
+      {
+        num: "02", title: "CONVERSION",
+        kpis: [
+          { name: "Win Rate", actual: "30%", bud: "Bud: 30%", pill: "flat", pillClass: "gray" },
+          { name: "Offer Rate", actual: "60%", bud: "Bud: 60%", pill: "flat", pillClass: "gray" },
+          { name: "Hit Rate", actual: "51%", bud: "Bud: 50%", pill: "+1pp", pillClass: "green" },
+          { name: "UQ Rate", actual: "24%", bud: "Bud: 25%", pill: "flat", pillClass: "gray" }
+        ]
+      },
+      {
+        num: "03", title: "VALUE",
+        kpis: [
+          { name: "Avg Basket Size", actual: "DKK 79k", bud: "Bud: 79k", pill: "flat", pillClass: "gray" },
+          { name: "GP Margin", actual: "27%", bud: "Bud: 27%", pill: "flat", pillClass: "gray" },
+          { name: "GP1 / Staff", actual: "2.9×", bud: "Bud: 3.0×", pill: "−0.1×", pillClass: "gray" }
+        ]
+      },
+      {
+        num: "04", title: "MIX",
+        kpis: [
+          { name: "Product Mix", actual: "Stable", bud: "—", pill: "ok", pillClass: "gray" },
+          { name: "Channel Mix", actual: "Organic 62%", bud: "Bud: 60%", pill: "+2pp", pillClass: "gray" }
+        ]
+      }
+    ],
+    diagnosis: {
+      title: "It's a funnel problem, not a team problem.",
+      signature: "Sales down 22% — but every conversion ratio and value metric is healthy. Bookings are down by exactly the right amount to match the volume shortfall. The team is converting normally; they just don't have enough leads to convert.",
+      signals: [
+        "Requests assigned −30% — the entry point of the funnel is starved",
+        "Win Rate, Offer Rate, Hit Rate all flat to Bud",
+        "Basket size and GP margin both unchanged",
+        "Bookings drop is proportional to lead drop"
+      ],
+      teaching: "Don't punish the team for a funnel problem. The fix lives upstream — marketing, lead generation, channel mix — not in coaching individual TAs.",
+      smart: "If you were the TL: where do you focus? On the team — or on the people upstream?"
+    }
+  },
+
+  conversion: {
+    headline: {
+      market: "KILROY NORDICS — YTD",
+      actual: "DKK 24.6M",
+      bud: "30.0M",
+      variance: "−18%",
+      varianceClass: "red",
+      ly: "vs LY: −12% (LY: DKK 27.9M)"
+    },
+    layers: [
+      {
+        num: "01", title: "VOLUME",
+        kpis: [
+          { name: "Requests Assigned", actual: "1,880", bud: "Bud: 1,900", pill: "−1%", pillClass: "gray" },
+          { name: "Bookings", actual: "312", bud: "Bud: 380", pill: "−18%", pillClass: "red" }
+        ]
+      },
+      {
+        num: "02", title: "CONVERSION",
+        kpis: [
+          { name: "Win Rate", actual: "22%", bud: "Bud: 30%", pill: "−8pp", pillClass: "red" },
+          { name: "Offer Rate", actual: "52%", bud: "Bud: 60%", pill: "−8pp", pillClass: "red" },
+          { name: "Hit Rate", actual: "42%", bud: "Bud: 50%", pill: "−8pp", pillClass: "red" },
+          { name: "UQ Rate", actual: "35%", bud: "Bud: 25%", pill: "+10pp", pillClass: "red" },
+          { name: "CL Rate", actual: "38%", bud: "Bud: 28%", pill: "+10pp", pillClass: "red" }
+        ]
+      },
+      {
+        num: "03", title: "VALUE",
+        kpis: [
+          { name: "Avg Basket Size", actual: "DKK 79k", bud: "Bud: 79k", pill: "flat", pillClass: "gray" },
+          { name: "GP Margin", actual: "27%", bud: "Bud: 27%", pill: "flat", pillClass: "gray" }
+        ]
+      },
+      {
+        num: "04", title: "MIX",
+        kpis: [
+          { name: "Product Mix", actual: "Stable", bud: "—", pill: "ok", pillClass: "gray" },
+          { name: "Channel Mix", actual: "Stable", bud: "—", pill: "ok", pillClass: "gray" }
+        ]
+      }
+    ],
+    diagnosis: {
+      title: "Conversion is collapsing across the whole funnel.",
+      signature: "Leads come in at normal rate, but they fall out at every stage. Win Rate, Offer Rate, Hit Rate all down ~8 percentage points. UQ Rate and CL Rate both spiked. Value side is intact — when we do close, the booking is the right size. This isn't a market problem and it isn't a value problem. It's an execution problem.",
+      signals: [
+        "Volume (requests in) basically flat — funnel is fed",
+        "Every conversion ratio dropped by similar magnitude",
+        "UQ Rate jumped 10pp — leads dying before offers go out",
+        "Value metrics unchanged — quality of bookings unchanged"
+      ],
+      teaching: "When the funnel feeds normally but converts poorly, the diagnosis sits with the team. Now drill: is it specific TAs, specific products, specific lead sources? That's the next layer.",
+      smart: "If you were the TL: which TA do you talk to first, and what would you look at in their dashboard?"
+    }
+  },
+
+  margin: {
+    headline: {
+      market: "KILROY NORDICS — YTD",
+      actual: "DKK 30.9M",
+      bud: "30.0M",
+      variance: "+3%",
+      varianceClass: "green",
+      ly: "vs LY: +11% — looks good on the surface"
+    },
+    layers: [
+      {
+        num: "01", title: "VOLUME",
+        kpis: [
+          { name: "Requests Assigned", actual: "1,920", bud: "Bud: 1,900", pill: "+1%", pillClass: "gray" },
+          { name: "Bookings", actual: "360", bud: "Bud: 380", pill: "−5%", pillClass: "gray" }
+        ]
+      },
+      {
+        num: "02", title: "CONVERSION",
+        kpis: [
+          { name: "Win Rate", actual: "28%", bud: "Bud: 30%", pill: "−2pp", pillClass: "gray" },
+          { name: "Offer Rate", actual: "58%", bud: "Bud: 60%", pill: "−2pp", pillClass: "gray" },
+          { name: "Hit Rate", actual: "48%", bud: "Bud: 50%", pill: "−2pp", pillClass: "gray" }
+        ]
+      },
+      {
+        num: "03", title: "VALUE",
+        kpis: [
+          { name: "Avg Basket Size", actual: "DKK 86k", bud: "Bud: 79k", pill: "+9%", pillClass: "green" },
+          { name: "GP Margin", actual: "21%", bud: "Bud: 27%", pill: "−6pp", pillClass: "red" },
+          { name: "GP1 (absolute)", actual: "DKK 6.5M", bud: "Bud: 8.1M", pill: "−20%", pillClass: "red" },
+          { name: "GP1 / Staff", actual: "2.4×", bud: "Bud: 3.0×", pill: "−0.6×", pillClass: "red" }
+        ]
+      },
+      {
+        num: "04", title: "MIX",
+        kpis: [
+          { name: "Product Mix", actual: "Higher-cost trips up", bud: "—", pill: "watch", pillClass: "red" },
+          { name: "Discount activity", actual: "Up materially", bud: "—", pill: "watch", pillClass: "red" }
+        ]
+      }
+    ],
+    diagnosis: {
+      title: "Topline is lying. The real KPI — GP1 — is bleeding.",
+      signature: "Sales are 3% above budget. Looks like a win. But basket size is up 9% while GP Margin is down 6 percentage points — meaning we're selling bigger trips at worse margins. Net GP1 is down 20% in absolute terms. GP1 / Staff ratio dropped from 3.0× to 2.4×.",
+      signals: [
+        "Headline (Turnover) variance is positive — easy to celebrate and move on",
+        "Basket size up + margin down = the dangerous combo",
+        "Absolute GP1 down 20% despite topline up 3%",
+        "GP1 / Staff ratio dropped 0.6× — strategic KPI off"
+      ],
+      teaching: "Topline can lie. Always pull GP1 alongside Turnover. A growing market with a shrinking margin is a market in trouble — you just can't see it yet.",
+      smart: "If you were the TL: what would you investigate first — pricing discipline, product mix, or discount policy?"
+    }
+  },
+
+  squeeze: {
+    headline: {
+      market: "KILROY NORDICS — YTD",
+      actual: "DKK 27.3M",
+      bud: "30.0M",
+      variance: "−9%",
+      varianceClass: "red",
+      ly: "vs LY: −5%. Win Rate −5pp YoY — concerning trend"
+    },
+    layers: [
+      {
+        num: "01", title: "VOLUME",
+        kpis: [
+          { name: "Requests Assigned", actual: "2,200", bud: "Bud: 1,900", pill: "+16%", pillClass: "green" },
+          { name: "Bookings", actual: "346", bud: "Bud: 380", pill: "−9%", pillClass: "red" }
+        ]
+      },
+      {
+        num: "02", title: "CONVERSION",
+        kpis: [
+          { name: "Win Rate", actual: "25%", bud: "Bud: 30%", pill: "−5pp", pillClass: "red" },
+          { name: "Offer Rate", actual: "62%", bud: "Bud: 60%", pill: "+2pp", pillClass: "green" },
+          { name: "Hit Rate", actual: "44%", bud: "Bud: 50%", pill: "−6pp", pillClass: "red" },
+          { name: "UQ Rate", actual: "24%", bud: "Bud: 25%", pill: "flat", pillClass: "gray" },
+          { name: "CL Rate", actual: "36%", bud: "Bud: 28%", pill: "+8pp", pillClass: "red" }
+        ]
+      },
+      {
+        num: "03", title: "VALUE",
+        kpis: [
+          { name: "Avg Basket Size", actual: "DKK 76k", bud: "Bud: 79k", pill: "−4%", pillClass: "gray" },
+          { name: "GP Margin", actual: "26%", bud: "Bud: 27%", pill: "−1pp", pillClass: "gray" }
+        ]
+      },
+      {
+        num: "04", title: "MIX — LOSS REASONS",
+        lossReasons: [
+          { name: "Flights bought elsewhere", pct: 28 },
+          { name: "DIY", pct: 24 },
+          { name: "Customer not ready", pct: 22 },
+          { name: "No response from pax", pct: 18 },
+          { name: "Other", pct: 8 }
+        ]
+      }
+    ],
+    diagnosis: {
+      title: "External pressure — not a team failure.",
+      signature: "Volume is UP 16% — people are interested. Offer Rate is healthy. But Hit Rate dropped 6pp and CL Rate jumped 8pp. Why? Look at the loss reasons: \"Flights bought elsewhere\" and \"DIY\" together are 52% of all losses. Yorlik Travel entered the market in Q2 with aggressive flight pricing. Customers are quoting us, then shopping the offer.",
+      signals: [
+        "Volume UP (not down) — interest is there",
+        "Offer Rate stable — team is doing its job",
+        "Hit Rate and CL Rate compressing — that's where competition shows up",
+        "Loss reasons skew external: \"bought elsewhere\" + \"DIY\" = 52%",
+        "Basket size and margin only lightly down — pricing pressure starting"
+      ],
+      teaching: "When the funnel is healthy but conversion compresses, look at WHY customers say no before you blame the team. Loss reasons are the canary. The fix here isn't more coaching — it's commercial: differentiation, value-add, packaging, faster offers, or matching the competitive price where it matters.",
+      smart: "If you were the TL: what's one thing the team could change *this month* to win against Yorlik on the offers we're currently losing?"
+    }
+  }
+};
+
+function render(scenarioId) {
+  const s = scenarios[scenarioId];
+  const root = document.getElementById('scenario-content');
+  let html = '';
+
+  // Headline
+  html += `
+    <div class="headline">
+      <div class="headline-left">
+        <div class="label">SALES vs BUDGET · YTD</div>
+        <div class="market">${s.headline.market}</div>
+        <div class="actual-bud">
+          ${s.headline.actual}
+          <span class="vs-bud">vs Bud ${s.headline.bud}</span>
+        </div>
+        <div class="ly">${s.headline.ly}</div>
+      </div>
+      <div>
+        <span class="pill large ${s.headline.varianceClass}">${s.headline.variance}</span>
+      </div>
+    </div>`;
+
+  // Layers
+  html += '<div class="layers">';
+  s.layers.forEach(layer => {
+    html += `
+      <div class="layer-card">
+        <div class="layer-header">
+          <span class="layer-num">${layer.num}</span>
+          <span class="layer-title">${layer.title}</span>
+        </div>`;
+    if (layer.kpis) {
+      layer.kpis.forEach(k => {
+        html += `
+          <div class="kpi-row">
+            <div class="kpi-name">${k.name}</div>
+            <div class="kpi-values">
+              <div>
+                <span class="kpi-actual">${k.actual}</span>
+              </div>
+              <span class="pill ${k.pillClass}">${k.pill}</span>
+            </div>
+            <div class="kpi-bud">${k.bud}</div>
+          </div>`;
+      });
+    }
+    if (layer.lossReasons) {
+      html += '<div class="loss-reasons">';
+      layer.lossReasons.forEach(lr => {
+        html += `
+          <div class="loss-row">
+            <span class="label-text">${lr.name}</span>
+            <span class="bar-wrap"><span class="bar" style="width:${lr.pct * 2}%"></span></span>
+            <span class="pct">${lr.pct}%</span>
+          </div>`;
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Reveal
+  html += `
+    <div class="reveal-section">
+      <button class="reveal-btn" id="revealBtn" onclick="revealDiagnosis()">REVEAL DIAGNOSIS</button>
+      <div class="diagnosis" id="diagnosis">
+        <div class="label">DIAGNOSIS</div>
+        <h2>${s.diagnosis.title}</h2>
+        <div class="signature">${s.diagnosis.signature}</div>
+        <div class="signals">
+          <div class="signals-title">DATA SIGNALS YOU SHOULD HAVE SPOTTED</div>
+          <ul>${s.diagnosis.signals.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="teaching">${s.diagnosis.teaching}</div>
+        <div class="smart-prompt"><strong>Discussion prompt:</strong> ${s.diagnosis.smart}</div>
+      </div>
+    </div>`;
+
+  root.innerHTML = html;
+}
+
+function revealDiagnosis() {
+  document.getElementById('revealBtn').classList.add('revealed');
+  document.getElementById('diagnosis').classList.add('show');
+}
+
+document.querySelectorAll('.scenario-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render(btn.dataset.id);
+  });
+});
+
+render('volume');
+</script>
+</body>
+</html>

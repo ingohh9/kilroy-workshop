@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KILROY · TA Diagnostic</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF4713;
+    --black: #1A1A1A;
+    --gray: #888888;
+    --light-gray: #E8E8E8;
+    --bg: #FAFAFA;
+    --green: #22A06B;
+    --red: #E5484D;
+    --green-soft: #E6F4EF;
+    --red-soft: #FEEBEC;
+    --gray-soft: #F1F1F1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--black);
+    line-height: 1.5;
+    padding: 32px 40px 60px;
+  }
+  .container { max-width: 1320px; margin: 0 auto; }
+
+  .header {
+    border-bottom: 2px solid var(--black);
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .header h1 .accent { color: var(--orange); }
+  .header .subtitle {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    font-weight: 500;
+  }
+
+  /* Archetype selector */
+  .archetypes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .arch-btn {
+    background: white;
+    border: 1.5px solid var(--light-gray);
+    padding: 14px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .arch-btn:hover { border-color: var(--gray); }
+  .arch-btn.active {
+    border-color: var(--orange);
+    background: var(--orange);
+    color: white;
+  }
+  .arch-btn .num {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .arch-btn .name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* TA identity banner */
+  .ta-banner {
+    background: var(--black);
+    color: white;
+    padding: 14px 22px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ta-banner .ta-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .ta-banner .ta-name .label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    margin-right: 8px;
+  }
+  .ta-banner .bench-key {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.7;
+  }
+
+  /* Tile grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+  .tile {
+    background: white;
+    border: 1.5px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 16px 18px 14px;
+  }
+  .tile .tile-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    margin-bottom: 6px;
+  }
+  .tile .tile-value {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .tile .tile-bench-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+  }
+  .tile .tile-bench {
+    font-size: 11px;
+    color: var(--gray);
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .pill.red { background: var(--red-soft); color: var(--red); }
+  .pill.green { background: var(--green-soft); color: var(--green); }
+  .pill.gray { background: var(--gray-soft); color: var(--gray); }
+
+  /* Bottom row: loss reasons + breakdown */
+  .breakdown-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .breakdown-card {
+    background: white;
+    border: 1.5px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .breakdown-card .bk-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .breakdown-card .bk-title .count {
+    font-size: 14px;
+    color: var(--gray);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .reason-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+    gap: 10px;
+  }
+  .reason-row .label-text { min-width: 180px; }
+  .reason-row .bar-wrap {
+    flex: 1;
+    background: var(--gray-soft);
+    height: 7px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .reason-row .bar { height: 100%; background: var(--orange); }
+  .reason-row .bar.muted { background: #FF8666; }
+  .reason-row .pct { font-weight: 700; min-width: 40px; text-align: right; }
+
+  /* Reveal */
+  .reveal-btn {
+    width: 100%;
+    background: var(--black);
+    color: white;
+    border: none;
+    padding: 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .reveal-btn:hover { background: var(--orange); }
+  .reveal-btn.revealed { display: none; }
+
+  .diagnosis {
+    background: white;
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    padding: 26px 30px;
+    display: none;
+    margin-top: 14px;
+  }
+  .diagnosis.show { display: block; }
+  .diagnosis .label {
+    font-size: 11px;
+    color: var(--orange);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .diagnosis h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .diagnosis .signature {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .diagnosis .signals {
+    background: var(--bg);
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+  .diagnosis .signals-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .diagnosis ul { list-style: none; padding-left: 0; }
+  .diagnosis li {
+    font-size: 13px;
+    padding: 4px 0 4px 18px;
+    position: relative;
+  }
+  .diagnosis li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--orange);
+    font-weight: 700;
+  }
+  .diagnosis .teaching {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--gray);
+    padding-top: 14px;
+    border-top: 1px dashed var(--light-gray);
+  }
+  .diagnosis .smart-prompt {
+    margin-top: 14px;
+    background: #FFF4F0;
+    padding: 14px 18px;
+    border-left: 3px solid var(--orange);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .diagnosis .smart-prompt strong { font-weight: 700; }
+
+  .footer-note {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .archetypes { grid-template-columns: repeat(2, 1fr); }
+    .breakdown-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>TA <span class="accent">DIAGNOSTIC</span></h1>
+    <div class="subtitle">Travel Advisor · Last 365 Days · 4 Archetypes</div>
+  </div>
+
+  <div class="archetypes" id="archetypes">
+    <button class="arch-btn active" data-id="slow">
+      <span class="num">01</span>
+      <span class="name">THE SLOW TA</span>
+    </button>
+    <button class="arch-btn" data-id="underfed">
+      <span class="num">02</span>
+      <span class="name">THE UNDER-FED TA</span>
+    </button>
+    <button class="arch-btn" data-id="wrongmix">
+      <span class="num">03</span>
+      <span class="name">THE WRONG-MIX TA</span>
+    </button>
+    <button class="arch-btn" data-id="overqual">
+      <span class="num">04</span>
+      <span class="name">THE OVER-QUALIFIER</span>
+    </button>
+  </div>
+
+  <div id="archetype-content"></div>
+
+  <div class="footer-note">FORM A THEORY · THEN HAVE THE CONVERSATION · KILROY LEADERSHIP ACADEMY</div>
+</div>
+
+<script>
+const MARKET = {
+  winRate: 28, offerRate: 55, hitRate: 50, uqRate: 25, clRate: 25,
+  requests: 380, pipeline: 25, responseTime: 24, basket: 72
+};
+
+function variancePill(actual, bench, kind) {
+  // kind: 'pp' (percentage points, higher = good unless flipped), 'inv' (lower=good), 'pct' (percent diff), 'hours' (lower=good), 'unit'
+  let diff, label, cls;
+  if (kind === 'pp') {
+    diff = actual - bench;
+    label = (diff > 0 ? '+' : '') + diff.toFixed(0) + 'pp';
+    cls = Math.abs(diff) < 2 ? 'gray' : (diff > 0 ? 'green' : 'red');
+  } else if (kind === 'pp-inv') {
+    diff = actual - bench;
+    label = (diff > 0 ? '+' : '') + diff.toFixed(0) + 'pp';
+    cls = Math.abs(diff) < 2 ? 'gray' : (diff > 0 ? 'red' : 'green');
+  } else if (kind === 'pct') {
+    diff = ((actual - bench) / bench) * 100;
+    label = (diff > 0 ? '+' : '') + diff.toFixed(0) + '%';
+    cls = Math.abs(diff) < 5 ? 'gray' : (diff > 0 ? 'green' : 'red');
+  } else if (kind === 'pct-inv') {
+    diff = ((actual - bench) / bench) * 100;
+    label = (diff > 0 ? '+' : '') + diff.toFixed(0) + '%';
+    cls = Math.abs(diff) < 5 ? 'gray' : (diff > 0 ? 'red' : 'green');
+  } else if (kind === 'hours') {
+    diff = actual - bench;
+    label = (diff > 0 ? '+' : '') + diff.toFixed(0) + 'h';
+    cls = diff <= 0 ? 'green' : (diff > 8 ? 'red' : 'gray');
+  }
+  return { label, cls };
+}
+
+const archetypes = {
+  slow: {
+    taName: "Anna Karen Stefánsdóttir",
+    kpis: {
+      winRate: 20, offerRate: 68, hitRate: 32, uqRate: 24, clRate: 38,
+      requests: 450, pipeline: 47, responseTime: 41
+    },
+    showBasket: false,
+    clReasons: [
+      { name: "No response from pax", pct: 52 },
+      { name: "Unpredictable personal", pct: 18 },
+      { name: "Flights bought elsewhere", pct: 12 },
+      { name: "Customer not ready", pct: 10 },
+      { name: "DIY", pct: 4 },
+      { name: "Other", pct: 4 }
+    ],
+    clCount: 77,
+    uqReasons: [
+      { name: "Customer not ready", pct: 35 },
+      { name: "No response from pax", pct: 28 },
+      { name: "General travel info", pct: 18 },
+      { name: "DIY", pct: 12 },
+      { name: "Other", pct: 7 }
+    ],
+    uqCount: 38,
+    diagnosis: {
+      title: "Dropping balls. Too many offers, not enough follow-through.",
+      signature: "Volume in is high (450 — top of range). Pipeline is stuffed (47 active vs 25 market avg). Offers go out at high rate (68%) — but Hit Rate collapses to 32%. Response time slipped to 41h, well above the 24h benchmark. Loss reasons are the tell: 52% of closed-lost cases are \"No response from pax\" — customers ghosting because they aren't being chased.",
+      signals: [
+        "Pipeline almost 2× market average — overloaded",
+        "Hit Rate 18pp below benchmark — offers go out but don't close",
+        "Response Time 17h over benchmark — leads going cold",
+        "CL reason heavily skewed to \"No response\" — pattern, not coincidence"
+      ],
+      teaching: "Volume looks like a positive — they're working. But the data tells a different story: too many balls in the air, not enough follow-up discipline. This TA needs help managing pipeline capacity, not more leads.",
+      smart: "What would a SMART goal look like for this TA? Pair: think about response time, pipeline depth, and offer follow-up cadence. Which one would you tackle first?"
+    }
+  },
+
+  underfed: {
+    taName: "Jónas Þór Þorláksson",
+    kpis: {
+      winRate: 31, offerRate: 62, hitRate: 54, uqRate: 22, clRate: 18,
+      requests: 220, pipeline: 12, responseTime: 22
+    },
+    showBasket: false,
+    clReasons: [
+      { name: "Customer not ready", pct: 22 },
+      { name: "Flights bought elsewhere", pct: 18 },
+      { name: "Unpredictable personal", pct: 18 },
+      { name: "Budget not sufficient", pct: 15 },
+      { name: "No response from pax", pct: 14 },
+      { name: "DIY", pct: 8 },
+      { name: "Other", pct: 5 }
+    ],
+    clCount: 22,
+    uqReasons: [
+      { name: "General travel info", pct: 25 },
+      { name: "Customer not ready", pct: 23 },
+      { name: "DIY", pct: 20 },
+      { name: "No response from pax", pct: 18 },
+      { name: "Other", pct: 14 }
+    ],
+    uqCount: 16,
+    diagnosis: {
+      title: "Not a performance problem. A distribution problem.",
+      signature: "Every conversion ratio is healthy — Win Rate 31% (above benchmark), Hit Rate 54%, response time 22h (below 24h benchmark). UQ and CL rates are both below market average. The only thing that's off is the top of the funnel: only 220 requests processed, ~42% below the team average. Loss reasons are spread evenly — no concentration. The TA is fine. The lead distribution isn't.",
+      signals: [
+        "Requests processed only 220 vs team avg 380",
+        "Every conversion metric meets or beats benchmark",
+        "Response time well under benchmark",
+        "Loss reasons spread evenly — no behavioural pattern"
+      ],
+      teaching: "Don't coach the TA. Investigate why they're getting fewer leads. Is it a routing issue? Manual reassignment to others? A specific lead source they're not getting? The fix lives in the system, not the seat.",
+      smart: "What would a SMART goal look like for this TA? Pair: should the goal even be on the TA, or on the lead-distribution mechanism?"
+    }
+  },
+
+  wrongmix: {
+    taName: "Mads Lindgren",
+    kpis: {
+      winRate: 29, offerRate: 58, hitRate: 51, uqRate: 28, clRate: 25,
+      requests: 380, pipeline: 28, responseTime: 26
+    },
+    showBasket: true,
+    basket: 48,
+    gpPerBooking: 11,
+    clReasons: [
+      { name: "Customer not ready", pct: 24 },
+      { name: "Flights bought elsewhere", pct: 22 },
+      { name: "No response from pax", pct: 18 },
+      { name: "Budget not sufficient", pct: 16 },
+      { name: "Unpredictable personal", pct: 12 },
+      { name: "Other", pct: 8 }
+    ],
+    clCount: 28,
+    uqReasons: [
+      { name: "Customer not ready", pct: 30 },
+      { name: "General travel info", pct: 24 },
+      { name: "DIY", pct: 18 },
+      { name: "No response from pax", pct: 16 },
+      { name: "Other", pct: 12 }
+    ],
+    uqCount: 32,
+    diagnosis: {
+      title: "Looks fine in ratios. Hidden in basket size.",
+      signature: "Every conversion ratio is healthy or close to it — Win Rate 29%, Hit Rate 51%, all near benchmark. But average basket size is DKK 48k vs market average DKK 72k — that's 33% smaller. GP per booking sits at DKK 11k, the bottom of range. The TA is closing — but only the easy, small ones. The bigger, harder cases either go to UQ or never get offered.",
+      signals: [
+        "Win/Hit/Offer rates all within healthy range — invisible problem in ratios",
+        "Basket size DKK 48k vs market 72k — the only number that's actually off",
+        "GP per booking at the bottom of the range",
+        "Slightly elevated UQ rate — bigger leads may be the ones being killed"
+      ],
+      teaching: "Ratios can lie. Always look at value alongside conversion. A TA with great ratios but small basket size is leaving money on the table — and it's usually avoidance of the harder sale, not a skill gap.",
+      smart: "What would a SMART goal look like for this TA? Pair: what would you ask them about the last lead they qualified out? What would you ask about their last big booking?"
+    }
+  },
+
+  overqual: {
+    taName: "Elke Vermeulen",
+    kpis: {
+      winRate: 26, offerRate: 41, hitRate: 52, uqRate: 38, clRate: 19,
+      requests: 410, pipeline: 22, responseTime: 25
+    },
+    showBasket: false,
+    clReasons: [
+      { name: "Customer not ready", pct: 24 },
+      { name: "Budget not sufficient", pct: 22 },
+      { name: "Flights bought elsewhere", pct: 18 },
+      { name: "Unpredictable personal", pct: 14 },
+      { name: "No response from pax", pct: 12 },
+      { name: "Other", pct: 10 }
+    ],
+    clCount: 18,
+    uqReasons: [
+      { name: "Customer not ready", pct: 41 },
+      { name: "General travel info", pct: 28 },
+      { name: "DIY", pct: 15 },
+      { name: "Budget not sufficient", pct: 9 },
+      { name: "Other", pct: 7 }
+    ],
+    uqCount: 62,
+    diagnosis: {
+      title: "Killing leads too early. Offers never get written.",
+      signature: "Volume in is normal (410 requests). But Offer Rate is only 41% — meaning 59% of leads never see an offer. UQ Rate is 38% (top of range). UQ reasons skew heavily to \"Customer not yet ready\" (41%) and \"General travel info\" (28%) — together, 69% of the kills. These are soft prospects being qualified out instead of nurtured. Hit Rate on the offers that DO go out is healthy (52%), so when this TA writes an offer, they convert well — they just barely write them.",
+      signals: [
+        "Offer Rate 41% vs benchmark 55% — biggest single deviation",
+        "UQ Rate 38% — top of acceptable range",
+        "UQ reasons: 69% are \"not ready\" + \"general info\" (soft, recoverable leads)",
+        "Hit Rate 52% — proves the skill is there when they do offer"
+      ],
+      teaching: "Some TAs treat UQ as a productivity tool — \"if I qualify them out fast, I move on.\" But \"customer not ready\" and \"general info\" aren't dead leads — they're slow ones. The fix is nurture cadence and patience, not more leads.",
+      smart: "What would a SMART goal look like for this TA? Pair: would you target Offer Rate, UQ Rate, or something behavioural like nurture cadence? Why?"
+    }
+  }
+};
+
+function render(archetypeId) {
+  const a = archetypes[archetypeId];
+  const k = a.kpis;
+  const root = document.getElementById('archetype-content');
+
+  // KPI pills
+  const winP = variancePill(k.winRate, MARKET.winRate, 'pp');
+  const offP = variancePill(k.offerRate, MARKET.offerRate, 'pp');
+  const hitP = variancePill(k.hitRate, MARKET.hitRate, 'pp');
+  const uqP = variancePill(k.uqRate, MARKET.uqRate, 'pp-inv');
+  const clP = variancePill(k.clRate, MARKET.clRate, 'pp-inv');
+  const reqP = variancePill(k.requests, MARKET.requests, 'pct');
+  const pipP = variancePill(k.pipeline, MARKET.pipeline, 'pct');
+  const respP = variancePill(k.responseTime, MARKET.responseTime, 'hours');
+
+  let html = `
+    <div class="ta-banner">
+      <div class="ta-name"><span class="label">VIEWING AS</span> ${a.taName} (fictional)</div>
+      <div class="bench-key">All values · last 365 days · benchmark = market average</div>
+    </div>
+
+    <div class="grid">
+      <div class="tile">
+        <div class="tile-label">My Win Rate</div>
+        <div class="tile-value">${k.winRate}%</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Market avg: ${MARKET.winRate}%</span>
+          <span class="pill ${winP.cls}">${winP.label}</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-label">My Offer Rate</div>
+        <div class="tile-value">${k.offerRate}%</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Market avg: ${MARKET.offerRate}%</span>
+          <span class="pill ${offP.cls}">${offP.label}</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-label">My Hit Rate</div>
+        <div class="tile-value">${k.hitRate}%</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Market avg: ${MARKET.hitRate}%</span>
+          <span class="pill ${hitP.cls}">${hitP.label}</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-label">Requests Processed</div>
+        <div class="tile-value">${k.requests}</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Market avg: ${MARKET.requests}</span>
+          <span class="pill ${reqP.cls}">${reqP.label}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="tile">
+        <div class="tile-label">UQ Rate</div>
+        <div class="tile-value">${k.uqRate}%</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Market avg: ${MARKET.uqRate}%</span>
+          <span class="pill ${uqP.cls}">${uqP.label}</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-label">Closed Lost Rate</div>
+        <div class="tile-value">${k.clRate}%</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Market avg: ${MARKET.clRate}%</span>
+          <span class="pill ${clP.cls}">${clP.label}</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-label">Pipeline Depth (active)</div>
+        <div class="tile-value">${k.pipeline}</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Market avg: ${MARKET.pipeline}</span>
+          <span class="pill ${pipP.cls}">${pipP.label}</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="tile-label">Response Time</div>
+        <div class="tile-value">${k.responseTime}h</div>
+        <div class="tile-bench-row">
+          <span class="tile-bench">Benchmark: ${MARKET.responseTime}h</span>
+          <span class="pill ${respP.cls}">${respP.label}</span>
+        </div>
+      </div>
+    </div>`;
+
+  // Optional value tile (Wrong-Mix)
+  if (a.showBasket) {
+    const basketP = variancePill(a.basket, MARKET.basket, 'pct');
+    html += `
+      <div class="grid grid-3">
+        <div class="tile">
+          <div class="tile-label">Avg Basket Size</div>
+          <div class="tile-value">DKK ${a.basket}k</div>
+          <div class="tile-bench-row">
+            <span class="tile-bench">Market avg: DKK ${MARKET.basket}k</span>
+            <span class="pill ${basketP.cls}">${basketP.label}</span>
+          </div>
+        </div>
+        <div class="tile">
+          <div class="tile-label">GP per Booking</div>
+          <div class="tile-value">DKK ${a.gpPerBooking}k</div>
+          <div class="tile-bench-row">
+            <span class="tile-bench">Market range: 14–22k</span>
+            <span class="pill red">low end</span>
+          </div>
+        </div>
+        <div class="tile" style="background:#FFF4F0;border-color:#FFD4C2;">
+          <div class="tile-label" style="color:var(--orange)">⚠ Watch</div>
+          <div style="font-size:13px;line-height:1.45;margin-top:6px;">
+            Conversion ratios all healthy — but value side is significantly below market.
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // Loss reasons breakdown
+  html += `
+    <div class="breakdown-row">
+      <div class="breakdown-card">
+        <div class="bk-title">UQ Reasons (Last 365 Days) <span class="count">${a.uqCount} cases</span></div>`;
+  a.uqReasons.forEach(r => {
+    html += `
+      <div class="reason-row">
+        <span class="label-text">${r.name}</span>
+        <span class="bar-wrap"><span class="bar muted" style="width:${r.pct * 2}%"></span></span>
+        <span class="pct">${r.pct}%</span>
+      </div>`;
+  });
+  html += '</div>';
+
+  html += `
+      <div class="breakdown-card">
+        <div class="bk-title">Closed Lost Reasons (Last 365 Days) <span class="count">${a.clCount} cases</span></div>`;
+  a.clReasons.forEach(r => {
+    html += `
+      <div class="reason-row">
+        <span class="label-text">${r.name}</span>
+        <span class="bar-wrap"><span class="bar" style="width:${r.pct * 2}%"></span></span>
+        <span class="pct">${r.pct}%</span>
+      </div>`;
+  });
+  html += '</div></div>';
+
+  // Reveal section
+  html += `
+    <button class="reveal-btn" id="revealBtn" onclick="revealDiagnosis()">REVEAL DIAGNOSIS</button>
+    <div class="diagnosis" id="diagnosis">
+      <div class="label">DIAGNOSIS</div>
+      <h2>${a.diagnosis.title}</h2>
+      <div class="signature">${a.diagnosis.signature}</div>
+      <div class="signals">
+        <div class="signals-title">DATA SIGNALS YOU SHOULD HAVE SPOTTED</div>
+        <ul>${a.diagnosis.signals.map(x => `<li>${x}</li>`).join('')}</ul>
+      </div>
+      <div class="teaching">${a.diagnosis.teaching}</div>
+      <div class="smart-prompt"><strong>SMART goal — discussion prompt:</strong> ${a.diagnosis.smart}</div>
+    </div>`;
+
+  root.innerHTML = html;
+}
+
+function revealDiagnosis() {
+  document.getElementById('revealBtn').classList.add('revealed');
+  document.getElementById('diagnosis').classList.add('show');
+}
+
+document.querySelectorAll('.arch-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.arch-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render(btn.dataset.id);
+  });
+});
+
+render('slow');
+</script>
+</body>
+</html>
